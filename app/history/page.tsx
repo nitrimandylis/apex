@@ -143,7 +143,7 @@ export default async function HistoryPage() {
   const gridNames = new Set(standings.map((d) => nameKey(d.familyName)));
   const grid = allDrivers.filter((d) => gridNames.has(nameKey(d.familyName)));
 
-  const now = Date.now();
+  const now = new Date().getTime();
   function ageOf(dob: string): number {
     return Math.floor((now - new Date(dob).getTime()) / (365.25 * 86400000));
   }
