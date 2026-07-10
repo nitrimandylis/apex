@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFavorite } from "@/lib/favorite";
 
 const NAV_ITEMS = [
   { href: "/", label: "Overview" },
@@ -17,8 +18,15 @@ type NextRaceCard = {
   detail: string; // e.g. "Spa · 19 Jul, 15:00"
 };
 
-export default function Sidebar({ nextRace }: { nextRace?: NextRaceCard }) {
+export default function Sidebar({
+  nextRace,
+  drivers = [],
+}: {
+  nextRace?: NextRaceCard;
+  drivers?: string[];
+}) {
   const pathname = usePathname();
+  const { favorite, setFavorite } = useFavorite();
 
   return (
     <div className="sticky top-0 flex h-screen w-[216px] flex-none flex-col gap-1.5 border-r border-white/[0.06] bg-white/[0.015] px-[18px] pt-[30px] pb-6 backdrop-blur-[20px]">
@@ -63,6 +71,28 @@ export default function Sidebar({ nextRace }: { nextRace?: NextRaceCard }) {
       })}
 
       <div className="flex-1" />
+
+      {drivers.length > 0 && (
+        <div className="mb-1.5 px-1">
+          <div className="mb-1.5 px-1 text-[10.5px] tracking-[0.18em] text-[#F5F3F1]/45">
+            FAVORITE DRIVER
+          </div>
+          <select
+            value={favorite}
+            onChange={(e) => setFavorite(e.target.value)}
+            className="w-full cursor-pointer rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[13px] text-[#F5F3F1] outline-none"
+          >
+            <option value="" className="bg-[#111114]">
+              No favorite
+            </option>
+            {drivers.map((name) => (
+              <option key={name} value={name} className="bg-[#111114]">
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {nextRace && (
         <div className="rounded-[14px] border border-white/[0.07] bg-white/[0.025] px-[15px] py-3.5">
