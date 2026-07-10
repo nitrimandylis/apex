@@ -72,31 +72,42 @@ export default async function StandingsPage() {
             CONSTRUCTORS
           </div>
           <div className="grid grid-cols-1 gap-x-10 gap-y-3.5 lg:grid-cols-2">
-            {constructors.map((t) => {
-              const color = TEAM_COLORS[t.constructorId] ?? "#B6BABD";
-              const barWidth = Math.max(
-                1,
-                Math.round((t.points / topTeamPts) * 100),
-              );
-              return (
-                <div key={t.constructorId}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
-                      {t.pos}
+            {[
+              constructors.slice(0, Math.ceil(constructors.length / 2)),
+              constructors.slice(Math.ceil(constructors.length / 2)),
+            ].map((half, col) => (
+              <div key={col} className="flex flex-col gap-3.5">
+                {half.map((t) => {
+                  const color = TEAM_COLORS[t.constructorId] ?? "#B6BABD";
+                  const barWidth = Math.max(
+                    1,
+                    Math.round((t.points / topTeamPts) * 100),
+                  );
+                  return (
+                    <div key={t.constructorId}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
+                          {t.pos}
+                        </div>
+                        <div className="text-[14.5px] font-medium">
+                          {t.name}
+                        </div>
+                        <div className="flex-1" />
+                        <div className="text-[14.5px] font-bold">
+                          {t.points}
+                        </div>
+                      </div>
+                      <div className="mt-2 ml-9 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+                        <div
+                          className="h-full rounded-full"
+                          style={{ background: color, width: `${barWidth}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="text-[14.5px] font-medium">{t.name}</div>
-                    <div className="flex-1" />
-                    <div className="text-[14.5px] font-bold">{t.points}</div>
-                  </div>
-                  <div className="mt-2 ml-9 h-1 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ background: color, width: `${barWidth}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </div>
