@@ -22,9 +22,11 @@ type NextRaceCard = {
 export default function Sidebar({
   nextRace,
   drivers = [],
+  onSwitch,
 }: {
   nextRace?: NextRaceCard;
   drivers?: string[];
+  onSwitch?: () => void;
 }) {
   const pathname = usePathname();
   const { favorite, setFavorite } = useFavorite();
@@ -111,6 +113,16 @@ export default function Sidebar({
       })}
 
       <div className="flex-1" />
+
+      {onSwitch && (
+        <button
+          onClick={onSwitch}
+          title="Switch to top tabs"
+          className="mb-1.5 cursor-pointer rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-left text-[12px] text-[#F5F3F1]/55 hover:text-[#F5F3F1]"
+        >
+          ⇆ Use top tabs
+        </button>
+      )}
 
       {drivers.length > 0 && (
         <div className="mb-1.5 px-1">
