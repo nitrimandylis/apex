@@ -10,8 +10,8 @@ export default function Logo({ size = 22 }: { size?: number }) {
     >
       <defs>
         <linearGradient id="apex-line" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0" stop-color="#B50500" />
-          <stop offset="1" stop-color="#FF2A1F" />
+          <stop offset="0" stopColor="#B50500" />
+          <stop offset="1" stopColor="#FF2A1F" />
         </linearGradient>
       </defs>
       {/* racing line: in from the bottom, clip the corner, out to the right */}
