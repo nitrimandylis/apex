@@ -11,6 +11,22 @@ export const TEAM_COLORS: Record<string, string> = {
   audi: "#F50537",
   aston_martin: "#229971",
   cadillac: "#C5A253",
+  // Historic teams, for the history page.
+  alfa: "#9B0000",
+  benetton: "#00A550",
+  brabham: "#00563F",
+  "brabham-repco": "#00563F",
+  brawn: "#CDFB00",
+  brm: "#5A7247",
+  "cooper-climax": "#0E2A4E",
+  jordan: "#F9C909",
+  "lotus-climax": "#005F42",
+  "lotus-ford": "#005F42",
+  team_lotus: "#005F42",
+  maserati: "#C00000",
+  "matra-ford": "#1D6FB8",
+  tyrrell: "#00205B",
+  vanwall: "#0B4F35",
 };
 
 // OpenF1 uses team names ("Red Bull Racing"), not constructor ids.
