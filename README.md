@@ -36,10 +36,10 @@ nick@apex:~$ bun run dev
 
 | | screen | what it actually shows |
 |---|---|---|
-| 01 | **overview** | next-race hero with a live countdown, circuit outline drawn from real position data, last podium, top 5 |
-| 02 | **calendar** | all 22 rounds with real winner tags — completed rounds dim themselves out of respect |
-| 03 | **standings** | drivers and constructors with points bars, your favorite driver highlighted (stored locally, judged locally) |
-| 04 | **telemetry** | any past session replayed at 1×/5×/20× — speed, gear, throttle, brake, running order, tyres, gaps |
+| 01 | **overview** | next-race hero with live countdown, real circuit outline, weekend schedule in your timezone, last podium + pole, top 5 with faces |
+| 02 | **calendar** | all 22 rounds with flags, sprint badges, mini track shapes, winner faces — completed rounds dim themselves out of respect |
+| 03 | **standings** | title-fight chart of points by round, drivers and constructors with headshots and points bars, your favorite highlighted (stored locally, judged locally) |
+| 04 | **telemetry** | any past session replayed at 1×/5×/20× — speed, gear, throttle, brake, running order, a live car dot on the track map, weather, race-control messages, and the actual team radio |
 | 05 | **history** | wins so far this season + the last ten world champions |
 
 ## 🚀 Run it
@@ -69,9 +69,10 @@ flowchart LR
 |---|---|---|
 | jolpica client | `lib/jolpica.ts` | standings, calendar, results, champions — typed, cached, 429-tolerant |
 | openf1 client | `lib/openf1.ts` | sessions, drivers, car data, positions, stints, laps, gaps + the track outline |
-| replay math | `lib/replay.ts` | pure helpers: binary search over 20k samples, running order, lap/tyre lookups — the tested part |
+| replay math | `lib/replay.ts` | pure helpers: binary search over 20k samples, running order, lap/tyre/weather lookups — the tested part |
 | replay ui | `components/replay.tsx` | the state machine: pick session → load → advance a simulated clock every 250ms |
 | views | `app/*/page.tsx` | one route per screen, server-rendered off the cached data |
+| track shapes | `scripts/build-outlines.ts` | one real lap per circuit, downsampled and committed as json — rerun after a new circuit debuts |
 
 **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · bun — that's the whole list.
 
