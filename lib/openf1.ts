@@ -62,6 +62,15 @@ async function fetchCachedRetry(
   return res as Response;
 }
 
+
+// F1's CDN URLs embed d_driver_fallback_image.png as a default: when the
+// real photo doesn't exist (rookies), it serves a generic silhouette with
+// HTTP 200. Strip the fallback so missing photos 404 instead — then the
+// Headshot component's error path draws its initial-letter circle.
+function directHeadshot(url: string | null): string {
+  return (url ?? "").replace("d_driver_fallback_image.png/", "");
+}
+
 // ---- Client-side fetchers for the telemetry replay ----
 // These run in the browser, so plain fetch with no Next cache options.
 
@@ -152,7 +161,7 @@ export async function getSessionDrivers(key: number): Promise<OF1Driver[]> {
     acronym: d.name_acronym,
     lastName: d.last_name,
     teamName: d.team_name,
-    headshot: d.headshot_url ?? "",
+    headshot: directHeadshot(d.headshot_url),
   }));
 }
 
@@ -354,7 +363,7 @@ export async function getHeadshots(): Promise<Record<string, string>> {
     const map: Record<string, string> = {};
     for (const d of drivers) {
       if (d.headshot_url) {
-        map[nameKey(d.last_name)] = d.headshot_url;
+        map[nameKey(d.last_name)] = directHeadshot(d.headshot_url);
       }
     }
     return map;
@@ -472,7 +481,7 @@ export async function getSessionResult(
           acronym: d?.name_acronym ?? `#${r.driver_number}`,
           lastName: d?.last_name ?? `#${r.driver_number}`,
           teamName: d?.team_name ?? "",
-          headshot: d?.headshot_url ?? "",
+          headshot: directHeadshot(d?.headshot_url ?? null),
           laps: r.number_of_laps ?? 0,
           bestTime: best(r.duration),
           gap: lastNum(r.gap_to_leader),
