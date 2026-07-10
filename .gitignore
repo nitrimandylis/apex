@@ -42,3 +42,5 @@ next-env.d.ts
 
 #documentation
 docs/
+# local planning docs, removed from the repo on purpose
+/docs/
