@@ -89,6 +89,11 @@ export default async function CalendarPage() {
                       SPRINT
                     </span>
                   )}
+                  {!outline && (
+                    <span className="rounded-md border border-[#FF564E]/40 bg-[#E10600]/10 px-1.5 py-0.5 text-[9.5px] font-bold tracking-[0.14em] text-[#FF564E]/90">
+                      NEW CIRCUIT
+                    </span>
+                  )}
                 </div>
                 <div className="mt-px text-[12.5px] text-[#F5F3F1]/50">
                   {race.circuit}
