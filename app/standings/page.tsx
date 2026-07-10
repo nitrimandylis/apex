@@ -37,34 +37,41 @@ export default async function StandingsPage() {
           <PointsChart events={progression.events} lines={progression.lines} />
         </div>
       )}
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
+      <div className="flex flex-col gap-5">
         <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
           <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             DRIVERS · AFTER ROUND {round}
           </div>
-          <div className="flex flex-col gap-1.5">
-            {standings.map((d, i) => (
-              <DriverRow
-                key={d.familyName + d.pos}
-                pos={d.pos}
-                name={d.name}
-                familyName={d.familyName}
-                team={d.team}
-                color={TEAM_COLORS[d.constructorId] ?? "#B6BABD"}
-                gap={pointsGap(leaderPts, d.points)}
-                pts={d.points}
-                zebra={i % 2 === 0}
-                headshot={headshots[nameKey(d.familyName)] ?? ""}
-              />
+          <div className="grid grid-cols-1 gap-x-8 gap-y-1.5 lg:grid-cols-2">
+            {[
+              standings.slice(0, Math.ceil(standings.length / 2)),
+              standings.slice(Math.ceil(standings.length / 2)),
+            ].map((half, col) => (
+              <div key={col} className="flex flex-col gap-1.5">
+                {half.map((d, i) => (
+                  <DriverRow
+                    key={d.familyName + d.pos}
+                    pos={d.pos}
+                    name={d.name}
+                    familyName={d.familyName}
+                    team={d.team}
+                    color={TEAM_COLORS[d.constructorId] ?? "#B6BABD"}
+                    gap={pointsGap(leaderPts, d.points)}
+                    pts={d.points}
+                    zebra={i % 2 === 0}
+                    headshot={headshots[nameKey(d.familyName)] ?? ""}
+                  />
+                ))}
+              </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-[20px] lg:sticky lg:top-6 border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
+        <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
           <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             CONSTRUCTORS
           </div>
-          <div className="flex flex-col gap-3.5">
+          <div className="grid grid-cols-1 gap-x-10 gap-y-3.5 lg:grid-cols-2">
             {constructors.map((t) => {
               const color = TEAM_COLORS[t.constructorId] ?? "#B6BABD";
               const barWidth = Math.max(
