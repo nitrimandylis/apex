@@ -89,3 +89,156 @@ export async function getTrackOutline(
     return null;
   }
 }
+
+// ---- Client-side fetchers for the telemetry replay ----
+// These run in the browser, so plain fetch with no Next cache options.
+
+export type Session = {
+  key: number;
+  name: string;
+  location: string;
+  start: string;
+  end: string;
+  isRace: boolean;
+};
+
+export type OF1Driver = {
+  number: number;
+  acronym: string;
+  lastName: string;
+  teamName: string;
+};
+
+export type CarSample = {
+  t: number; // ms since epoch
+  speed: number;
+  gear: number;
+  throttle: number;
+  brake: number;
+};
+
+export type PosSample = { t: number; driver: number; position: number };
+export type Stint = {
+  driver: number;
+  lapStart: number;
+  lapEnd: number;
+  compound: string;
+};
+export type Lap = { lap: number; t: number; duration: number | null };
+export type IntervalSample = {
+  t: number;
+  driver: number;
+  gapToLeader: number | null;
+};
+
+async function getJson(path: string) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(`${BASE}${path}`);
+    if (res.ok) {
+      return res.json();
+    }
+    if (res.status === 429) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      continue;
+    }
+    throw new Error(`OpenF1 ${path} failed: ${res.status}`);
+  }
+  throw new Error(`OpenF1 ${path} failed: rate limited after retries`);
+}
+
+// Every session already run this season (plus last season as a fallback),
+// newest first.
+export async function getPastSessions(): Promise<Session[]> {
+  let sessions: any[] = await getJson("/sessions?year=2026");
+  sessions = sessions.filter(
+    (s) => new Date(s.date_end).getTime() < Date.now(),
+  );
+  if (sessions.length === 0) {
+    sessions = await getJson("/sessions?year=2025");
+  }
+  sessions.sort(
+    (a, b) => new Date(b.date_start).getTime() - new Date(a.date_start).getTime(),
+  );
+  return sessions.map((s) => ({
+    key: s.session_key,
+    name: s.session_name,
+    location: s.location,
+    start: s.date_start,
+    end: s.date_end,
+    isRace: s.session_name === "Race" || s.session_name === "Sprint",
+  }));
+}
+
+export async function getSessionDrivers(key: number): Promise<OF1Driver[]> {
+  const drivers = await getJson(`/drivers?session_key=${key}`);
+  return drivers.map((d: any) => ({
+    number: d.driver_number,
+    acronym: d.name_acronym,
+    lastName: d.last_name,
+    teamName: d.team_name,
+  }));
+}
+
+export async function getCarData(
+  key: number,
+  driver: number,
+): Promise<CarSample[]> {
+  const rows = await getJson(
+    `/car_data?session_key=${key}&driver_number=${driver}`,
+  );
+  return rows.map((r: any) => ({
+    t: new Date(r.date).getTime(),
+    speed: r.speed,
+    gear: r.n_gear,
+    throttle: r.throttle,
+    brake: r.brake,
+  }));
+}
+
+export async function getPositions(key: number): Promise<PosSample[]> {
+  const rows = await getJson(`/position?session_key=${key}`);
+  return rows.map((r: any) => ({
+    t: new Date(r.date).getTime(),
+    driver: r.driver_number,
+    position: r.position,
+  }));
+}
+
+// All drivers' stints for the session in one request.
+export async function getStints(key: number): Promise<Stint[]> {
+  const rows = await getJson(`/stints?session_key=${key}`);
+  return rows.map((r: any) => ({
+    driver: r.driver_number,
+    lapStart: r.lap_start,
+    lapEnd: r.lap_end,
+    compound: r.compound ?? "",
+  }));
+}
+
+export async function getLaps(key: number, driver: number): Promise<Lap[]> {
+  const rows = await getJson(
+    `/laps?session_key=${key}&driver_number=${driver}`,
+  );
+  return rows.map((r: any) => ({
+    lap: r.lap_number,
+    t: new Date(r.date_start).getTime(),
+    duration: r.lap_duration,
+  }));
+}
+
+export async function getIntervalWindow(
+  key: number,
+  fromMs: number,
+  toMs: number,
+): Promise<IntervalSample[]> {
+  const from = new Date(fromMs).toISOString();
+  const to = new Date(toMs).toISOString();
+  const rows = await getJson(
+    `/intervals?session_key=${key}&date%3E${from}&date%3C${to}`,
+  );
+  return rows.map((r: any) => ({
+    t: new Date(r.date).getTime(),
+    driver: r.driver_number,
+    gapToLeader: typeof r.gap_to_leader === "number" ? r.gap_to_leader : null,
+  }));
+}
