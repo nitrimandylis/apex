@@ -2,7 +2,7 @@ import Link from "next/link";
 import PageHeader from "@/components/page-header";
 import Countdown from "@/components/countdown";
 import TrackMap from "@/components/track-map";
-import { getTrackOutline } from "@/lib/openf1";
+import { outlineFor } from "@/lib/outlines";
 import {
   getCalendar,
   getConstructorStandings,
@@ -31,7 +31,7 @@ export default async function OverviewPage() {
 
   const now = new Date();
   const next = nextRace(races, now);
-  const outline = next ? await getTrackOutline(next.country) : null;
+  const outline = next ? outlineFor(next.locality) : null;
 
   const raceDay = next
     ? new Date(next.raceStart).toLocaleDateString("en-GB", {
