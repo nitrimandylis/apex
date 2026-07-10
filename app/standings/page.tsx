@@ -19,7 +19,7 @@ export default async function StandingsPage() {
   const seasonPoints = await getSeasonPoints().catch(() => []);
   const headshots = await getHeadshots();
   const progression =
-    seasonPoints.length > 0 ? buildProgression(seasonPoints, 5) : null;
+    seasonPoints.length > 0 ? buildProgression(seasonPoints) : null;
   const leaderPts = standings[0].points;
   const topTeamPts = constructors[0].points;
 
@@ -32,9 +32,9 @@ export default async function StandingsPage() {
       {progression && (
         <div className="mb-5 rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
           <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
-            TITLE FIGHT · POINTS BY ROUND
+            TITLE FIGHT · POINTS BY EVENT
           </div>
-          <PointsChart rounds={progression.rounds} lines={progression.lines} />
+          <PointsChart events={progression.events} lines={progression.lines} />
         </div>
       )}
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">

@@ -2,59 +2,83 @@
 
 export type RoundPoints = {
   round: number;
+  kind: "race" | "sprint";
   driverId: string;
   familyName: string;
   constructorId: string;
   points: number;
 };
 
+// One x-axis position: a sprint or a race. Sprints come before their race.
+export type SeasonEvent = {
+  round: number;
+  kind: "race" | "sprint";
+  label: string; // "R9" or "S9"
+};
+
 export type ProgressionLine = {
   driverId: string;
   familyName: string;
   constructorId: string;
-  cumulative: number[]; // index 0 = after round 1
+  cumulative: number[]; // one value per SeasonEvent
 };
 
-// Sums race + sprint points per driver per round and accumulates them.
-// Returns the top N drivers by final total, best first.
-export function buildProgression(
-  rows: RoundPoints[],
-  topN: number,
-): { rounds: number[]; lines: ProgressionLine[] } {
-  const lastRound = rows.reduce((max, r) => Math.max(max, r.round), 0);
-  const rounds: number[] = [];
-  for (let r = 1; r <= lastRound; r++) {
-    rounds.push(r);
+// Cumulative points per driver after every scoring event of the season,
+// for ALL drivers, sorted by final total (best first). The chart decides
+// which lines to show.
+export function buildProgression(rows: RoundPoints[]): {
+  events: SeasonEvent[];
+  lines: ProgressionLine[];
+} {
+  // Distinct events in racing order: by round, sprint before race.
+  const seen = new Set<string>();
+  const events: SeasonEvent[] = [];
+  for (const row of rows) {
+    const id = `${row.round}-${row.kind}`;
+    if (!seen.has(id)) {
+      seen.add(id);
+      events.push({
+        round: row.round,
+        kind: row.kind,
+        label: `${row.kind === "sprint" ? "S" : "R"}${row.round}`,
+      });
+    }
   }
+  events.sort((a, b) => {
+    if (a.round !== b.round) {
+      return a.round - b.round;
+    }
+    return a.kind === "sprint" ? -1 : 1;
+  });
+  const eventIndex = new Map(
+    events.map((e, i) => [`${e.round}-${e.kind}`, i]),
+  );
 
   type Acc = {
     familyName: string;
     constructorId: string;
-    perRound: number[];
+    perEvent: number[];
   };
   const byDriver = new Map<string, Acc>();
-
   for (const row of rows) {
     let acc = byDriver.get(row.driverId);
     if (!acc) {
       acc = {
         familyName: row.familyName,
         constructorId: row.constructorId,
-        perRound: new Array(lastRound).fill(0),
+        perEvent: new Array(events.length).fill(0),
       };
       byDriver.set(row.driverId, acc);
     }
-    // A driver has up to two rows per round (race + sprint) — add both.
-    acc.perRound[row.round - 1] += row.points;
-    // Track the latest team in case of a mid-season swap.
-    acc.constructorId = row.constructorId;
+    acc.perEvent[eventIndex.get(`${row.round}-${row.kind}`) ?? 0] += row.points;
+    acc.constructorId = row.constructorId; // track mid-season team swaps
   }
 
   const lines: ProgressionLine[] = [...byDriver.entries()].map(
     ([driverId, acc]) => {
       const cumulative: number[] = [];
       let total = 0;
-      for (const pts of acc.perRound) {
+      for (const pts of acc.perEvent) {
         total += pts;
         cumulative.push(total);
       }
@@ -72,5 +96,5 @@ export function buildProgression(
       b.cumulative[b.cumulative.length - 1] -
       a.cumulative[a.cumulative.length - 1],
   );
-  return { rounds, lines: lines.slice(0, topN) };
+  return { events, lines };
 }

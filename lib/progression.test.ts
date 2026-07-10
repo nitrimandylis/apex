@@ -2,30 +2,29 @@ import { expect, test } from "bun:test";
 import { buildProgression, type RoundPoints } from "./progression";
 
 const rows: RoundPoints[] = [
-  // round 1: A wins, B second
-  { round: 1, driverId: "a", familyName: "Alpha", constructorId: "mercedes", points: 25 },
-  { round: 1, driverId: "b", familyName: "Beta", constructorId: "ferrari", points: 18 },
-  // round 2 is a sprint weekend: B takes sprint + race, A skips (DNS -> no row)
-  { round: 2, driverId: "b", familyName: "Beta", constructorId: "ferrari", points: 8 },
-  { round: 2, driverId: "b", familyName: "Beta", constructorId: "ferrari", points: 25 },
-  // round 3: A wins again
-  { round: 3, driverId: "a", familyName: "Alpha", constructorId: "mercedes", points: 25 },
-  { round: 3, driverId: "b", familyName: "Beta", constructorId: "ferrari", points: 0 },
+  // round 1: plain race
+  { round: 1, kind: "race", driverId: "a", familyName: "Alpha", constructorId: "mercedes", points: 25 },
+  { round: 1, kind: "race", driverId: "b", familyName: "Beta", constructorId: "ferrari", points: 18 },
+  // round 2: sprint weekend — sprint and race are separate events
+  { round: 2, kind: "sprint", driverId: "b", familyName: "Beta", constructorId: "ferrari", points: 8 },
+  { round: 2, kind: "race", driverId: "b", familyName: "Beta", constructorId: "ferrari", points: 25 },
+  { round: 2, kind: "race", driverId: "a", familyName: "Alpha", constructorId: "mercedes", points: 18 },
 ];
 
-test("buildProgression accumulates race + sprint points per round", () => {
-  const { rounds, lines } = buildProgression(rows, 5);
-  expect(rounds).toEqual([1, 2, 3]);
-
-  const beta = lines.find((l) => l.driverId === "b")!;
-  expect(beta.cumulative).toEqual([18, 51, 51]); // 18, +8+25, +0
-
-  const alpha = lines.find((l) => l.driverId === "a")!;
-  expect(alpha.cumulative).toEqual([25, 25, 50]); // missing round counts 0
+test("buildProgression makes sprints their own event, before the race", () => {
+  const { events } = buildProgression(rows);
+  expect(events.map((e) => e.label)).toEqual(["R1", "S2", "R2"]);
 });
 
-test("buildProgression sorts by final total and honors topN", () => {
-  const { lines } = buildProgression(rows, 1);
-  expect(lines.length).toBe(1);
-  expect(lines[0].driverId).toBe("b"); // 51 > 50
+test("buildProgression accumulates per event for every driver", () => {
+  const { lines } = buildProgression(rows);
+  const beta = lines.find((l) => l.driverId === "b")!;
+  expect(beta.cumulative).toEqual([18, 26, 51]);
+  const alpha = lines.find((l) => l.driverId === "a")!;
+  expect(alpha.cumulative).toEqual([25, 25, 43]); // no sprint points -> flat
+});
+
+test("buildProgression sorts lines by final total", () => {
+  const { lines } = buildProgression(rows);
+  expect(lines[0].driverId).toBe("b"); // 51 > 43
 });

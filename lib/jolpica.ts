@@ -271,7 +271,11 @@ export async function getSeasonPoints(): Promise<RoundPoints[]> {
 
   const rows: RoundPoints[] = [];
 
-  async function collect(path: string, key: "Results" | "SprintResults") {
+  async function collect(
+    path: string,
+    key: "Results" | "SprintResults",
+    kind: "race" | "sprint",
+  ) {
     let offset = 0;
     while (true) {
       const page: RawPage = await getJson(
@@ -282,6 +286,7 @@ export async function getSeasonPoints(): Promise<RoundPoints[]> {
         for (const r of race[key] ?? []) {
           rows.push({
             round: Number(race.round),
+            kind,
             driverId: r.Driver.driverId,
             familyName: r.Driver.familyName,
             constructorId: r.Constructor.constructorId,
@@ -297,8 +302,8 @@ export async function getSeasonPoints(): Promise<RoundPoints[]> {
   }
 
   // Sequential to respect Jolpica's rate limit.
-  await collect("/current/results.json", "Results");
-  await collect("/current/sprint.json", "SprintResults");
+  await collect("/current/results.json", "Results", "race");
+  await collect("/current/sprint.json", "SprintResults", "sprint");
   return rows;
 }
 
