@@ -26,6 +26,8 @@ export default function ScheduleStrip({
 
   const nextIdx = sessions.findIndex((s) => new Date(s.start).getTime() > now);
   const showLocal = localTz !== "" && localTz !== tz;
+  // The race chip is always the red one; past sessions just dim.
+  const highlight = (label: string) => label === "RACE";
 
   function fmt(iso: string, timeZone: string) {
     const d = new Date(iso);
@@ -41,7 +43,7 @@ export default function ScheduleStrip({
   return (
     <div className="flex flex-wrap gap-3">
       {sessions.map((s, i) => {
-        const isNext = i === nextIdx;
+        const isNext = highlight(s.label);
         const isPast = nextIdx === -1 || i < nextIdx;
         return (
           <div
@@ -73,7 +75,9 @@ export default function ScheduleStrip({
             {showLocal && (
               <div className="mt-0.5 text-[12px] text-[#F5F3F1]/50">
                 {fmt(s.start, localTz)}
-                <span className="ml-1 text-[10px] text-[#F5F3F1]/35">you</span>
+                <span className="ml-1 text-[10px] text-[#F5F3F1]/35">
+                local
+              </span>
               </div>
             )}
           </div>
