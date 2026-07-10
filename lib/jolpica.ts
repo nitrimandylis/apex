@@ -49,11 +49,20 @@ export type Champion = {
 };
 
 async function getJson(path: string, revalidate: number) {
-  const res = await fetch(`${BASE}${path}`, { next: { revalidate } });
-  if (!res.ok) {
+  // Jolpica's free tier allows ~4 requests per second; on a cold cache we
+  // can trip it, so wait and retry a couple of times on 429.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(`${BASE}${path}`, { next: { revalidate } });
+    if (res.ok) {
+      return res.json();
+    }
+    if (res.status === 429) {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      continue;
+    }
     throw new Error(`Jolpica ${path} failed: ${res.status}`);
   }
-  return res.json();
+  throw new Error(`Jolpica ${path} failed: rate limited after retries`);
 }
 
 export async function getCalendar(): Promise<Race[]> {
@@ -170,17 +179,18 @@ export async function getChampions(): Promise<Champion[]> {
     years.push(y);
   }
 
-  const champions = await Promise.all(
-    years.map(async (year) => {
-      const data = await getJson(`/${year}/driverstandings/1.json`, WEEK);
-      const s = data.MRData.StandingsTable.StandingsLists[0].DriverStandings[0];
-      return {
-        year,
-        name: `${s.Driver.givenName} ${s.Driver.familyName}`,
-        team: s.Constructors[0].name,
-        constructorId: s.Constructors[0].constructorId,
-      };
-    }),
-  );
+  // Sequential on purpose: ten parallel requests trip Jolpica's rate limit.
+  // This only runs when the weekly cache is cold.
+  const champions: Champion[] = [];
+  for (const year of years) {
+    const data = await getJson(`/${year}/driverstandings/1.json`, WEEK);
+    const s = data.MRData.StandingsTable.StandingsLists[0].DriverStandings[0];
+    champions.push({
+      year,
+      name: `${s.Driver.givenName} ${s.Driver.familyName}`,
+      team: s.Constructors[0].name,
+      constructorId: s.Constructors[0].constructorId,
+    });
+  }
   return champions;
 }
