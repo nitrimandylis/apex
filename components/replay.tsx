@@ -106,8 +106,10 @@ export default function Replay() {
   const [speedIdx, setSpeedIdx] = useState(1); // default 5x
   const [gaps, setGaps] = useState<Map<number, number | null>>(new Map());
   const [locations, setLocations] = useState<LocationSample[]>([]);
+  const [switching, setSwitching] = useState(false);
   const lastGapFetch = useRef(0);
   const lastLocFetch = useRef(0);
+  const wantedDriver = useRef<number | null>(null);
 
   const session = sessions.find((s) => s.key === sessionKey) ?? null;
   const driver = drivers.find((d) => d.number === driverNumber) ?? null;
@@ -185,6 +187,37 @@ export default function Replay() {
     } catch {
       setError("Could not load telemetry for this combination. Try another session.");
       setPhase("idle");
+    }
+  }
+
+  // Swap the featured car mid-replay: only car data and laps are
+  // driver-specific; the clock, order, gaps and feeds keep running.
+  async function switchDriver(number: number) {
+    if (!session || sessionKey === null || number === driverNumber) {
+      return;
+    }
+    setDriverNumber(number);
+    wantedDriver.current = number;
+    setSwitching(true);
+    try {
+      const [carData, laps] = await Promise.all([
+        getCarData(sessionKey, number, session.start, session.end),
+        getLaps(sessionKey, number),
+      ]);
+      if (wantedDriver.current !== number) {
+        return; // user already clicked someone else
+      }
+      carData.sort((a, b) => a.t - b.t);
+      laps.sort((a, b) => a.t - b.t);
+      setData((old) => (old ? { ...old, carData, laps } : old));
+      setLocations([]);
+      lastLocFetch.current = 0;
+    } catch {
+      // keep showing the previous car rather than breaking the replay
+    } finally {
+      if (wantedDriver.current === number) {
+        setSwitching(false);
+      }
     }
   }
 
@@ -402,7 +435,10 @@ export default function Replay() {
         {/* Left column: car gauges + track */}
         <div className="flex flex-col gap-5">
           {/* Featured car */}
-          <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
+          <div
+            className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]"
+            style={switching ? { opacity: 0.55 } : undefined}
+          >
             <div className="flex items-center gap-3">
               {driver && (
                 <Headshot
@@ -415,6 +451,9 @@ export default function Replay() {
               <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
                 CAR {driver?.number} · {driver?.lastName.toUpperCase()}
               </div>
+              {switching && (
+                <div className="text-[11px] text-[#FF564E]">loading…</div>
+              )}
             </div>
 
             <div className="mt-4 flex items-end justify-between gap-4">
@@ -508,6 +547,9 @@ export default function Replay() {
         <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
           <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             RUNNING ORDER · {session?.location.toUpperCase()}
+            <span className="ml-2 font-normal tracking-normal text-[#F5F3F1]/30 normal-case">
+              — click a driver to follow their car
+            </span>
           </div>
           <div className="flex flex-col gap-[7px]">
             {order.map((number, i) => {
@@ -527,10 +569,12 @@ export default function Replay() {
                 : "—";
               const isFav =
                 favorite !== "" && nameKey(d.lastName) === nameKey(favorite);
+              const isFeatured = number === driverNumber;
               return (
-                <div
+                <button
                   key={number}
-                  className="flex items-center gap-[13px] rounded-xl border px-3.5 py-2"
+                  onClick={() => switchDriver(number)}
+                  className="flex w-full cursor-pointer items-center gap-[13px] rounded-xl border px-3.5 py-2 text-left hover:border-white/[0.18]"
                   style={{
                     background:
                       i === 0
@@ -538,11 +582,15 @@ export default function Replay() {
                         : isFav
                           ? "rgba(225,6,0,0.05)"
                           : "rgba(255,255,255,0.02)",
-                    borderColor: isFav ? "rgba(225,6,0,0.4)" : "transparent",
+                    borderColor: isFeatured
+                      ? "rgba(245,243,241,0.35)"
+                      : isFav
+                        ? "rgba(225,6,0,0.4)"
+                        : "transparent",
                   }}
                 >
                   <div className="w-5 text-[13px] font-bold text-[#F5F3F1]/40">
-                    {i + 1}
+                    {isFeatured ? "▶" : i + 1}
                   </div>
                   <Headshot src={d.headshot} name={d.lastName} color={color} size={24} />
                   <div
@@ -564,7 +612,7 @@ export default function Replay() {
                   <div className="w-[70px] text-right text-[13px] text-[#F5F3F1]/75">
                     {gap}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
