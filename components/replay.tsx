@@ -361,87 +361,151 @@ export default function Replay() {
         </div>
       </PageHeader>
 
-      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[1fr_1.1fr]">
-        {/* Featured car */}
-        <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[30px] py-7 backdrop-blur-[18px]">
-          <div className="flex items-center gap-3">
-            {driver && (
-              <Headshot
-                src={driver.headshot}
-                name={driver.lastName}
-                color={colorForTeamName(driver.teamName)}
-                size={36}
+      {/* Transport bar — the media player for the whole replay */}
+      <div className="mb-5 flex flex-wrap items-center gap-3.5 rounded-[18px] border border-white/[0.08] bg-white/[0.03] px-5 py-3.5 backdrop-blur-[18px]">
+        <button
+          onClick={() => setPaused((p) => !p)}
+          className="w-[86px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-[13px] font-semibold hover:bg-white/[0.09]"
+        >
+          {paused ? "Play" : "Pause"}
+        </button>
+        <button
+          onClick={() => setSpeedIdx((i) => (i + 1) % SPEEDS.length)}
+          className="w-[52px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-[13px] font-semibold hover:bg-white/[0.09]"
+        >
+          {SPEEDS[speedIdx]}×
+        </button>
+        <div className="w-[52px] text-right text-xs font-semibold text-[#F5F3F1]/60">
+          {formatElapsed(simTime - sessionStart)}
+        </div>
+        <input
+          type="range"
+          min={sessionStart}
+          max={sessionEnd}
+          value={Math.min(simTime, sessionEnd)}
+          onChange={(e) => setSimTime(Number(e.target.value))}
+          className="min-w-[140px] flex-1 accent-[#E10600]"
+        />
+        <div className="w-[34px] text-right text-xs text-[#F5F3F1]/45">
+          {Math.round(progress)}%
+        </div>
+        <div className="h-5 w-px bg-white/[0.08]" />
+        <button
+          onClick={() => setPhase("idle")}
+          className="cursor-pointer text-xs text-[#F5F3F1]/45 hover:text-[#FF564E]"
+        >
+          End replay
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[1fr_1.05fr]">
+        {/* Left column: car gauges + track */}
+        <div className="flex flex-col gap-5">
+          {/* Featured car */}
+          <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
+            <div className="flex items-center gap-3">
+              {driver && (
+                <Headshot
+                  src={driver.headshot}
+                  name={driver.lastName}
+                  color={colorForTeamName(driver.teamName)}
+                  size={36}
+                />
+              )}
+              <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+                CAR {driver?.number} · {driver?.lastName.toUpperCase()}
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-end justify-between gap-4">
+              <div className="flex items-baseline gap-2.5">
+                <div className="text-[64px] leading-none font-bold tracking-[-0.02em] lg:text-[76px]">
+                  {sample.speed}
+                </div>
+                <div className="text-[15px] text-[#F5F3F1]/50">km/h</div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <StatBox label="GEAR" value={String(sample.gear)} />
+              <StatBox
+                label="LAP"
+                value={lapInfo.lap > 0 ? `${lapInfo.lap} / ${lapInfo.total}` : "—"}
               />
+              <StatBox label="LAST LAP" value={lapInfo.lastLap} />
+            </div>
+
+            <Bar
+              label="THROTTLE"
+              value={sample.throttle}
+              gradient="linear-gradient(90deg, #B50500, #FF2A1F)"
+            />
+            <Bar
+              label="BRAKE"
+              value={sample.brake}
+              gradient="rgba(245,243,241,0.75)"
+            />
+          </div>
+
+          {/* Track map + weather */}
+          <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
+            <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+              TRACK · {driver?.acronym}
+            </div>
+            {outline ? (
+              <div className="h-[220px]">
+                <TrackMap
+                  points={outline}
+                  dot={carDot ? { x: carDot.x, y: carDot.y } : null}
+                />
+              </div>
+            ) : (
+              <div className="flex h-[220px] items-center justify-center text-[13px] text-[#F5F3F1]/40">
+                No track geometry for this circuit yet
+              </div>
             )}
-            <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
-              CAR {driver?.number} · {driver?.lastName.toUpperCase()}
-            </div>
-            <div className="flex-1" />
-            <button
-              onClick={() => setPhase("idle")}
-              className="cursor-pointer text-xs text-[#F5F3F1]/45 hover:text-[#FF564E]"
-            >
-              End replay
-            </button>
-          </div>
-
-          <div className="mt-[22px] flex items-baseline gap-3">
-            <div className="text-[64px] leading-none font-bold tracking-[-0.02em] lg:text-[96px]">
-              {sample.speed}
-            </div>
-            <div className="text-base text-[#F5F3F1]/50">km/h</div>
-          </div>
-
-          <div className="mt-[26px] flex gap-3.5">
-            <StatBox label="GEAR" value={String(sample.gear)} />
-            <StatBox
-              label="LAP"
-              value={lapInfo.lap > 0 ? `${lapInfo.lap} / ${lapInfo.total}` : "—"}
-            />
-            <StatBox label="LAST LAP" value={lapInfo.lastLap} />
-          </div>
-
-          <Bar
-            label="THROTTLE"
-            value={sample.throttle}
-            gradient="linear-gradient(90deg, #B50500, #FF2A1F)"
-          />
-          <Bar
-            label="BRAKE"
-            value={sample.brake}
-            gradient="rgba(245,243,241,0.75)"
-          />
-
-          {/* Transport */}
-          <div className="mt-7 flex items-center gap-3.5 border-t border-white/[0.06] pt-5">
-            <button
-              onClick={() => setPaused((p) => !p)}
-              className="w-[86px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-[13px] font-semibold hover:bg-white/[0.09]"
-            >
-              {paused ? "Play" : "Pause"}
-            </button>
-            <button
-              onClick={() => setSpeedIdx((i) => (i + 1) % SPEEDS.length)}
-              className="w-[52px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-[13px] font-semibold hover:bg-white/[0.09]"
-            >
-              {SPEEDS[speedIdx]}×
-            </button>
-            <input
-              type="range"
-              min={sessionStart}
-              max={sessionEnd}
-              value={Math.min(simTime, sessionEnd)}
-              onChange={(e) => setSimTime(Number(e.target.value))}
-              className="flex-1 accent-[#E10600]"
-            />
-            <div className="w-[34px] text-right text-xs text-[#F5F3F1]/45">
-              {Math.round(progress)}%
-            </div>
+            {weatherNow && (
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-white/[0.06] pt-4">
+                {[
+                  ["TRACK", `${weatherNow.trackTemp.toFixed(1)}°`],
+                  ["AIR", `${weatherNow.airTemp.toFixed(1)}°`],
+                  ["WIND", `${weatherNow.windSpeed.toFixed(1)} m/s`],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5 text-[11px]"
+                  >
+                    <span className="tracking-[0.14em] text-[#F5F3F1]/40">
+                      {label}{" "}
+                    </span>
+                    <span className="font-semibold">{value}</span>
+                  </div>
+                ))}
+                <div
+                  className="rounded-lg border px-2.5 py-1.5 text-[11px]"
+                  style={{
+                    borderColor: weatherNow.rainfall
+                      ? "rgba(0,144,255,0.5)"
+                      : "rgba(255,255,255,0.07)",
+                    background: weatherNow.rainfall
+                      ? "rgba(0,144,255,0.12)"
+                      : "rgba(255,255,255,0.03)",
+                  }}
+                >
+                  <span className="tracking-[0.14em] text-[#F5F3F1]/40">
+                    RAIN{" "}
+                  </span>
+                  <span className="font-semibold">
+                    {weatherNow.rainfall ? "YES" : "NO"}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Running order */}
-        <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[30px] py-7 backdrop-blur-[18px]">
+        {/* Right column: full running order */}
+        <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
           <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             RUNNING ORDER · {session?.location.toUpperCase()}
           </div>
@@ -480,6 +544,7 @@ export default function Replay() {
                   <div className="w-5 text-[13px] font-bold text-[#F5F3F1]/40">
                     {i + 1}
                   </div>
+                  <Headshot src={d.headshot} name={d.lastName} color={color} size={24} />
                   <div
                     className="h-4 w-[3px] rounded-full"
                     style={{ background: color }}
@@ -487,7 +552,7 @@ export default function Replay() {
                   <div className="w-[52px] text-sm font-semibold tracking-[0.06em]">
                     {d.acronym}
                   </div>
-                  <div className="flex-1 text-[12.5px] text-[#F5F3F1]/45">
+                  <div className="hidden min-w-0 flex-1 truncate text-[12.5px] text-[#F5F3F1]/45 sm:block">
                     {d.teamName}
                   </div>
                   <div
@@ -506,64 +571,8 @@ export default function Replay() {
         </div>
       </div>
 
-      {/* Broadcast row: track map + weather, race control, team radio */}
-      <div className="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.1fr_1fr_1fr]">
-        {/* Track map + weather */}
-        <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
-          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
-            TRACK · {driver?.acronym}
-          </div>
-          {outline ? (
-            <div className="h-[190px]">
-              <TrackMap
-                points={outline}
-                dot={carDot ? { x: carDot.x, y: carDot.y } : null}
-              />
-            </div>
-          ) : (
-            <div className="flex h-[190px] items-center justify-center text-[13px] text-[#F5F3F1]/40">
-              No track geometry for this circuit yet
-            </div>
-          )}
-          {weatherNow && (
-            <div className="mt-4 flex flex-wrap gap-2 border-t border-white/[0.06] pt-4">
-              {[
-                ["TRACK", `${weatherNow.trackTemp.toFixed(1)}°`],
-                ["AIR", `${weatherNow.airTemp.toFixed(1)}°`],
-                ["WIND", `${weatherNow.windSpeed.toFixed(1)} m/s`],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5 text-[11px]"
-                >
-                  <span className="tracking-[0.14em] text-[#F5F3F1]/40">
-                    {label}{" "}
-                  </span>
-                  <span className="font-semibold">{value}</span>
-                </div>
-              ))}
-              <div
-                className="rounded-lg border px-2.5 py-1.5 text-[11px]"
-                style={{
-                  borderColor: weatherNow.rainfall
-                    ? "rgba(0,144,255,0.5)"
-                    : "rgba(255,255,255,0.07)",
-                  background: weatherNow.rainfall
-                    ? "rgba(0,144,255,0.12)"
-                    : "rgba(255,255,255,0.03)",
-                }}
-              >
-                <span className="tracking-[0.14em] text-[#F5F3F1]/40">
-                  RAIN{" "}
-                </span>
-                <span className="font-semibold">
-                  {weatherNow.rainfall ? "YES" : "NO"}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
+      {/* Bottom row: race control + team radio */}
+      <div className="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
         {/* Race control */}
         <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
           <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
