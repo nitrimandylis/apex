@@ -1,13 +1,13 @@
 // Helpers for the OpenF1 API. Historical data is free and needs no key.
 
 const BASE = "https://api.openf1.org/v1";
-const WEEK = 604800;
 
 // Raw row shapes as OpenF1 returns them (only the fields we read).
 type RawSession = {
   session_key: number;
   session_name: string;
   location: string;
+  country_name: string;
   date_start: string;
   date_end: string;
 };
@@ -16,6 +16,7 @@ type RawDriver = {
   name_acronym: string;
   last_name: string;
   team_name: string;
+  headshot_url: string | null;
 };
 type RawCar = {
   date: string;
@@ -42,22 +43,6 @@ type RawInterval = {
   gap_to_leader: number | null;
 };
 
-async function getJsonCached(path: string) {
-  // OpenF1 rate-limits bursts; wait and retry on 429 (only hit on cold cache).
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await fetch(`${BASE}${path}`, { next: { revalidate: WEEK } });
-    if (res.ok) {
-      return res.json();
-    }
-    if (res.status === 429) {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      continue;
-    }
-    throw new Error(`OpenF1 ${path} failed: ${res.status}`);
-  }
-  throw new Error(`OpenF1 ${path} failed: rate limited after retries`);
-}
-
 // ---- Client-side fetchers for the telemetry replay ----
 // These run in the browser, so plain fetch with no Next cache options.
 
@@ -65,6 +50,7 @@ export type Session = {
   key: number;
   name: string;
   location: string;
+  country: string;
   start: string;
   end: string;
   isRace: boolean;
@@ -75,6 +61,7 @@ export type OF1Driver = {
   acronym: string;
   lastName: string;
   teamName: string;
+  headshot: string;
 };
 
 export type CarSample = {
@@ -132,6 +119,7 @@ export async function getPastSessions(): Promise<Session[]> {
     key: s.session_key,
     name: s.session_name,
     location: s.location,
+    country: s.country_name,
     start: s.date_start,
     end: s.date_end,
     isRace: s.session_name === "Race" || s.session_name === "Sprint",
@@ -145,6 +133,7 @@ export async function getSessionDrivers(key: number): Promise<OF1Driver[]> {
     acronym: d.name_acronym,
     lastName: d.last_name,
     teamName: d.team_name,
+    headshot: d.headshot_url ?? "",
   }));
 }
 
@@ -221,4 +210,140 @@ export async function getIntervalWindow(
     driver: r.driver_number,
     gapToLeader: typeof r.gap_to_leader === "number" ? r.gap_to_leader : null,
   }));
+}
+
+export type WeatherSample = {
+  t: number;
+  airTemp: number;
+  trackTemp: number;
+  rainfall: boolean;
+  windSpeed: number;
+};
+
+export async function getWeather(key: number): Promise<WeatherSample[]> {
+  type RawWeather = {
+    date: string;
+    air_temperature: number;
+    track_temperature: number;
+    rainfall: number;
+    wind_speed: number;
+  };
+  const rows: RawWeather[] = await getJson(`/weather?session_key=${key}`);
+  return rows.map((r) => ({
+    t: new Date(r.date).getTime(),
+    airTemp: r.air_temperature,
+    trackTemp: r.track_temperature,
+    rainfall: r.rainfall > 0,
+    windSpeed: r.wind_speed,
+  }));
+}
+
+export type RaceControlMsg = {
+  t: number;
+  category: string;
+  flag: string | null;
+  message: string;
+};
+
+export async function getRaceControl(key: number): Promise<RaceControlMsg[]> {
+  type RawRC = {
+    date: string;
+    category: string | null;
+    flag: string | null;
+    message: string;
+  };
+  const rows: RawRC[] = await getJson(`/race_control?session_key=${key}`);
+  return rows.map((r) => ({
+    t: new Date(r.date).getTime(),
+    category: r.category ?? "",
+    flag: r.flag,
+    message: r.message,
+  }));
+}
+
+export type RadioClip = { t: number; driver: number; url: string };
+
+export async function getTeamRadio(key: number): Promise<RadioClip[]> {
+  type RawRadio = { date: string; driver_number: number; recording_url: string };
+  let rows: RawRadio[];
+  try {
+    rows = await getJson(`/team_radio?session_key=${key}`);
+  } catch {
+    return []; // sessions without radio give 404 / "No results found"
+  }
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+  return rows.map((r) => ({
+    t: new Date(r.date).getTime(),
+    driver: r.driver_number,
+    url: r.recording_url,
+  }));
+}
+
+export type LocationSample = { t: number; x: number; y: number };
+
+export async function getLocationWindow(
+  key: number,
+  driver: number,
+  fromMs: number,
+  toMs: number,
+): Promise<LocationSample[]> {
+  type RawLocation = { date: string; x: number; y: number };
+  const from = new Date(fromMs).toISOString();
+  const to = new Date(toMs).toISOString();
+  let rows: RawLocation[];
+  try {
+    rows = await getJson(
+      `/location?session_key=${key}&driver_number=${driver}` +
+        `&date%3E${from}&date%3C${to}`,
+    );
+  } catch {
+    return []; // empty window -> 404
+  }
+  return rows.map((r) => ({
+    t: new Date(r.date).getTime(),
+    x: r.x,
+    y: r.y,
+  }));
+}
+
+// Headshot URL per driver, keyed by lowercase last name. Server-side,
+// cached daily — used to decorate Jolpica standings with faces.
+export async function getHeadshots(): Promise<Record<string, string>> {
+  try {
+    const DAY = 86400;
+    const res = await fetch(`${BASE}/sessions?year=2026&session_name=Race`, {
+      next: { revalidate: DAY },
+    });
+    if (!res.ok) {
+      return {};
+    }
+    const sessions: RawSession[] = await res.json();
+    const past = sessions.filter(
+      (s) => new Date(s.date_end).getTime() < Date.now(),
+    );
+    if (past.length === 0) {
+      return {};
+    }
+    const key = past[past.length - 1].session_key;
+
+    const dRes = await fetch(`${BASE}/drivers?session_key=${key}`, {
+      next: { revalidate: DAY },
+    });
+    if (!dRes.ok) {
+      return {};
+    }
+    const drivers: RawDriver[] = await dRes.json();
+
+    const map: Record<string, string> = {};
+    for (const d of drivers) {
+      if (d.headshot_url) {
+        map[d.last_name.toLowerCase()] = d.headshot_url;
+      }
+    }
+    return map;
+  } catch {
+    return {}; // faces are decoration — never break a page over them
+  }
 }

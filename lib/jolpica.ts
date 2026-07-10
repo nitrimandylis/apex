@@ -2,6 +2,8 @@
 // All requests are cached server-side with ISR so visitors never
 // hit the API directly (Jolpica asks not to be hammered).
 
+import type { RoundPoints } from "./progression";
+
 const BASE = "https://api.jolpi.ca/ergast/f1";
 const HOUR = 3600;
 const WEEK = 604800;
@@ -209,6 +211,92 @@ export async function getSeasonWinners(): Promise<
     };
   }
   return winners;
+}
+
+export type QualiResult = {
+  pos: number;
+  familyName: string;
+  constructorId: string;
+  time: string;
+};
+
+export async function getQualifying(): Promise<{
+  raceName: string;
+  results: QualiResult[];
+}> {
+  const data = await getJson("/current/last/qualifying.json", HOUR);
+  const race = data.MRData.RaceTable.Races[0];
+
+  type RawQuali = {
+    position: string;
+    Q1?: string;
+    Q2?: string;
+    Q3?: string;
+    Driver: { familyName: string };
+    Constructor: { constructorId: string };
+  };
+  const results = race.QualifyingResults.map((q: RawQuali) => ({
+    pos: Number(q.position),
+    familyName: q.Driver.familyName,
+    constructorId: q.Constructor.constructorId,
+    time: q.Q3 ?? q.Q2 ?? q.Q1 ?? "—",
+  }));
+
+  return { raceName: race.raceName, results };
+}
+
+// Every points-scoring row of the season (race + sprint), flattened for
+// the progression chart. Paginated: Jolpica caps limit at 100 rows.
+export async function getSeasonPoints(): Promise<RoundPoints[]> {
+  type RawPage = {
+    MRData: {
+      total: string;
+      RaceTable: {
+        Races: {
+          round: string;
+          Results?: RawResult2[];
+          SprintResults?: RawResult2[];
+        }[];
+      };
+    };
+  };
+  type RawResult2 = {
+    points: string;
+    Driver: { driverId: string; familyName: string };
+    Constructor: { constructorId: string };
+  };
+
+  const rows: RoundPoints[] = [];
+
+  async function collect(path: string, key: "Results" | "SprintResults") {
+    let offset = 0;
+    while (true) {
+      const page: RawPage = await getJson(
+        `${path}?limit=100&offset=${offset}`,
+        HOUR,
+      );
+      for (const race of page.MRData.RaceTable.Races) {
+        for (const r of race[key] ?? []) {
+          rows.push({
+            round: Number(race.round),
+            driverId: r.Driver.driverId,
+            familyName: r.Driver.familyName,
+            constructorId: r.Constructor.constructorId,
+            points: Number(r.points),
+          });
+        }
+      }
+      offset += 100;
+      if (offset >= Number(page.MRData.total)) {
+        break;
+      }
+    }
+  }
+
+  // Sequential to respect Jolpica's rate limit.
+  await collect("/current/results.json", "Results");
+  await collect("/current/sprint.json", "SprintResults");
+  return rows;
 }
 
 export async function getChampions(): Promise<Champion[]> {
