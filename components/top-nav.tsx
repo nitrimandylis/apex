@@ -6,7 +6,7 @@ import Logo from "@/components/logo";
 import { useFavorite } from "@/lib/favorite";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Overview" },
+  { href: "/overview", label: "Overview" },
   { href: "/calendar", label: "Calendar" },
   { href: "/standings", label: "Standings" },
   { href: "/telemetry", label: "Telemetry" },

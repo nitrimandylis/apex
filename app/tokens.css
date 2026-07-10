@@ -1,0 +1,53 @@
+/* Hallmark · macrostructure: Manifesto · tone: brutalist poster · anchor hue: warm-red 29°
+ * theme: custom (vibe: "dark glass timing screen, F1 red" · paper oklch(13% 0.005 285)
+ * · accent oklch(55% 0.22 29) warm-red · Outfit display + Outfit body — brand-locked)
+ * nav: brutal slab (2 destinations) · footer: Ft5 Statement · enrichment: Tier-B real
+ * telemetry track outline · studied: no
+ * axes: dark paper / geometric-sans display / warm accent
+ */
+:root {
+  --color-paper: oklch(13% 0.005 285); /* #060608 */
+  --color-ink: oklch(96.5% 0.003 90); /* #F5F3F1 */
+  --color-ink-dim: oklch(96.5% 0.003 90 / 0.55);
+  --color-ink-faint: oklch(96.5% 0.003 90 / 0.35);
+  --color-accent: oklch(55% 0.22 29); /* #E10600 */
+  --color-accent-bright: oklch(64% 0.21 27); /* #FF564E */
+  --color-rule: oklch(96.5% 0.003 90 / 0.08);
+
+  --font-display: var(--font-outfit), "Helvetica Neue", sans-serif;
+  --font-body: var(--font-outfit), "Helvetica Neue", sans-serif;
+
+  --space-sm: 12px;
+  --space-md: 24px;
+  --space-lg: 48px;
+  --space-xl: 96px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-sweep: 700ms;
+}
+
+@keyframes hallmark-sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.sweep-in {
+  animation: hallmark-sweep var(--dur-sweep) var(--ease-out) both;
+}
+.sweep-in.delay-1 {
+  animation-delay: 120ms;
+}
+.sweep-in.delay-2 {
+  animation-delay: 240ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep-in {
+    animation: none;
+    clip-path: none;
+  }
+}
