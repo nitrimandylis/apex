@@ -1,4 +1,5 @@
 import PageHeader from "@/components/page-header";
+import FavRow from "@/components/fav-row";
 import { getChampions, getDriverStandings } from "@/lib/jolpica";
 import { TEAM_COLORS } from "@/lib/colors";
 
@@ -25,7 +26,11 @@ export default async function HistoryPage() {
             {winners.map((d) => {
               const color = TEAM_COLORS[d.constructorId] ?? "#B6BABD";
               return (
-                <div key={d.familyName}>
+                <FavRow
+                  key={d.familyName}
+                  familyName={d.familyName}
+                  className="-mx-2 rounded-lg px-2 py-1"
+                >
                   <div className="flex items-center gap-3">
                     <div
                       className="h-4 w-[3px] rounded-full"
@@ -44,7 +49,7 @@ export default async function HistoryPage() {
                       }}
                     />
                   </div>
-                </div>
+                </FavRow>
               );
             })}
           </div>
@@ -60,8 +65,9 @@ export default async function HistoryPage() {
           </div>
           <div className="flex flex-col gap-[5px]">
             {champions.map((c) => (
-              <div
+              <FavRow
                 key={c.year}
+                familyName={c.name.split(" ").slice(-1)[0]}
                 className="flex items-center gap-3.5 rounded-xl px-3.5 py-2 hover:bg-white/[0.04]"
               >
                 <div className="w-11 text-[13px] font-bold text-[#F5F3F1]/40">
@@ -74,7 +80,7 @@ export default async function HistoryPage() {
                 <div className="text-[14.5px] font-medium">{c.name}</div>
                 <div className="flex-1" />
                 <div className="text-[12.5px] text-[#F5F3F1]/45">{c.team}</div>
-              </div>
+              </FavRow>
             ))}
           </div>
         </div>

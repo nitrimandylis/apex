@@ -5,6 +5,7 @@ import TrackMap from "@/components/track-map";
 import Countdown from "@/components/countdown";
 import ScheduleStrip from "@/components/schedule-strip";
 import Headshot from "@/components/headshot";
+import FavRow from "@/components/fav-row";
 import {
   getCalendar,
   getCircuitWinners,
@@ -185,7 +186,11 @@ function PodiumHero({
 function MoverRow({ m, gained }: { m: Mover; gained: boolean }) {
   const color = TEAM_COLORS[m.row.constructorId] ?? "#B6BABD";
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-white/[0.02] px-3 py-2">
+    <FavRow
+      familyName={m.row.familyName}
+      background="rgba(255,255,255,0.02)"
+      className="flex items-center gap-3 rounded-xl px-3 py-2"
+    >
       <div className="h-4 w-[3px] rounded-full" style={{ background: color }} />
       <div className="min-w-0 flex-1 truncate text-[14px] font-medium">
         {m.row.familyName}
@@ -206,7 +211,7 @@ function MoverRow({ m, gained }: { m: Mover; gained: boolean }) {
           </span>
         </div>
       )}
-    </div>
+    </FavRow>
   );
 }
 
@@ -248,12 +253,11 @@ function RaceTable({
   return (
     <div className="flex flex-col gap-1">
       {rows.map((r, i) => (
-        <div
+        <FavRow
           key={r.familyName + r.pos}
+          familyName={r.familyName}
+          background={i % 2 === 0 ? "rgba(255,255,255,0.025)" : undefined}
           className="flex items-center gap-3 rounded-xl px-3 py-[7px]"
-          style={{
-            background: i % 2 === 0 ? "rgba(255,255,255,0.025)" : "transparent",
-          }}
         >
           <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
             {r.pos}
@@ -288,7 +292,7 @@ function RaceTable({
           <div className="w-8 text-right text-[13.5px] font-bold">
             {r.points > 0 ? r.points : ""}
           </div>
-        </div>
+        </FavRow>
       ))}
     </div>
   );
@@ -314,12 +318,11 @@ function QualiTable({
         <div className="w-[72px] text-right">Q3</div>
       </div>
       {rows.map((r, i) => (
-        <div
+        <FavRow
           key={r.familyName + r.pos}
+          familyName={r.familyName}
+          background={i % 2 === 0 ? "rgba(255,255,255,0.025)" : undefined}
           className="flex items-center gap-3 rounded-xl px-3 py-[7px]"
-          style={{
-            background: i % 2 === 0 ? "rgba(255,255,255,0.025)" : "transparent",
-          }}
         >
           <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
             {r.pos}
@@ -349,7 +352,7 @@ function QualiTable({
           <div className="w-[72px] text-right text-[12.5px] font-semibold text-[#F5F3F1]/85">
             {r.q3}
           </div>
-        </div>
+        </FavRow>
       ))}
     </div>
   );
@@ -359,12 +362,11 @@ function SessionTable({ rows }: { rows: SessionResultRow[] }) {
   return (
     <div className="flex flex-col gap-1">
       {rows.map((r, i) => (
-        <div
+        <FavRow
           key={r.acronym + r.pos}
+          familyName={r.lastName}
+          background={i % 2 === 0 ? "rgba(255,255,255,0.025)" : undefined}
           className="flex items-center gap-3 rounded-xl px-3 py-[7px]"
-          style={{
-            background: i % 2 === 0 ? "rgba(255,255,255,0.025)" : "transparent",
-          }}
         >
           <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
             {r.pos}
@@ -394,7 +396,7 @@ function SessionTable({ rows }: { rows: SessionResultRow[] }) {
           <div className="w-14 text-right text-[12px] text-[#F5F3F1]/40">
             {r.laps} laps
           </div>
-        </div>
+        </FavRow>
       ))}
     </div>
   );

@@ -4,6 +4,7 @@ import Countdown from "@/components/countdown";
 import TrackMap from "@/components/track-map";
 import { outlineFor } from "@/lib/outlines";
 import Headshot from "@/components/headshot";
+import FavRow from "@/components/fav-row";
 import ScheduleStrip from "@/components/schedule-strip";
 import { getHeadshots } from "@/lib/openf1";
 import {
@@ -177,7 +178,11 @@ export default async function OverviewPage() {
             </div>
             <div className="mt-4 flex flex-col gap-[9px]">
               {lastRace.podium.map((p) => (
-                <div key={p.pos} className="flex items-center gap-3">
+                <FavRow
+                  key={p.pos}
+                  familyName={p.familyName}
+                  className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-0.5"
+                >
                   <div className="w-[22px] text-[13px] font-bold text-[#F5F3F1]/45">
                     {p.pos}
                   </div>
@@ -194,7 +199,7 @@ export default async function OverviewPage() {
                   <div className="text-[12.5px] text-[#F5F3F1]/50">
                     {p.time}
                   </div>
-                </div>
+                </FavRow>
               ))}
             </div>
             {quali && quali.results.length > 0 && (
@@ -218,7 +223,11 @@ export default async function OverviewPage() {
             </div>
             <div className="mt-4 flex flex-col gap-[9px]">
               {topFive.map((d) => (
-                <div key={d.pos} className="flex items-center gap-3">
+                <FavRow
+                  key={d.pos}
+                  familyName={d.familyName}
+                  className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-0.5"
+                >
                   <div className="w-[22px] text-[13px] font-bold text-[#F5F3F1]/45">
                     {d.pos}
                   </div>
@@ -233,7 +242,7 @@ export default async function OverviewPage() {
                   </div>
                   <div className="flex-1" />
                   <div className="text-[13.5px] font-semibold">{d.points}</div>
-                </div>
+                </FavRow>
               ))}
             </div>
             <div className="mt-4 border-t border-white/[0.06] pt-3.5 text-xs text-[#F5F3F1]/45">
