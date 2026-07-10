@@ -1,6 +1,18 @@
 # APEX — F1 Dashboard
 
-A personal Formula 1 dashboard for the 2026 season. Dark glass UI, Outfit font, F1 red (#E10600), team-color accents — design is a faithful 1:1 port of the prototype in `F1 Dashboard.html` (self-extracting bundle; the real markup lives in its `__bundler/template` script tag).
+A personal Formula 1 dashboard for the 2026 season. Dark glass UI, Outfit font, F1 red (#E10600), team-color accents — design is a faithful port of the prototype in `design/prototype.html` (unpacked from the original `F1 Dashboard.html` bundle).
+
+## Status (2026-07-10)
+
+**Built and working.** All five views live on real data:
+
+- **Overview** — next-race hero with live countdown, real circuit outline drawn from OpenF1 car-position data, last-race podium, top-5 standings.
+- **Calendar** — 22 rounds with real winner tags, next-race highlight.
+- **Standings** — full drivers + constructors tables with points bars, favorite-driver highlight.
+- **Telemetry** — replay any past session from OpenF1 historical data: pick session + driver, watch speed/gear/throttle/brake and the running order with tyre compounds and gaps; play/pause, 1×/5×/20× speed, seek.
+- **History** — wins so far + last 10 champions.
+
+Implementation plan (executed): `docs/superpowers/plans/2026-07-10-apex-f1-dashboard.md`.
 
 ## Decisions (grilled 2026-07-10)
 

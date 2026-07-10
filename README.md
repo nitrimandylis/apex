@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+ █████╗ ██████╗ ███████╗██╗  ██╗
+██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝
+███████║██████╔╝█████╗   ╚███╔╝
+██╔══██║██╔═══╝ ██╔══╝   ██╔██╗
+██║  ██║██║     ███████╗██╔╝ ██╗
+╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
 
-## Getting Started
+<div align="center">
 
-First, run the development server:
+### `REAL F1 DATA // NONE OF IT INVENTED`
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+*a 2026-season Formula 1 dashboard that replays real telemetry instead of faking it*
+
+![next.js](https://img.shields.io/badge/next.js-16-E10600?style=flat-square&labelColor=111111) ![runtime](https://img.shields.io/badge/runtime-bun-F5F3F1?style=flat-square&labelColor=111111) ![data](https://img.shields.io/badge/data-jolpica_+_openf1-E10600?style=flat-square&labelColor=111111) ![api keys](https://img.shields.io/badge/api_keys-0-F5F3F1?style=flat-square&labelColor=111111) ![telemetry](https://img.shields.io/badge/fake_telemetry-0_(we_checked)-E10600?style=flat-square&labelColor=111111)
+
+</div>
+
+---
+
+## 🏁 What is this
+
+APEX is a Formula 1 dashboard for the 2026 season: standings, calendar, results, history, and a telemetry view — all pulled live from public APIs, none of it hardcoded. Championship data comes from [Jolpica](https://github.com/jolpica/jolpica-f1) (the Ergast successor) and gets cached server-side so the dashboard never hammers anyone's free tier.
+
+The telemetry view is the part that earns its keep. OpenF1 charges €9.90/month for real-time data but gives away every session since 2023 for free once it's 30 minutes old — so APEX replays history instead: pick any past session and any driver, and watch actual speed, gear, throttle, brake and the running order play back exactly as it happened, with tyre compounds and gaps. Even the circuit map on the overview page is drawn from one real lap of car position data (nobody photographs race tracks from above for free).
+
+It started life as a single-file design prototype (`design/prototype.html`) and got ported 1:1 — same dark glass, same F1 red, except the numbers stopped being fiction.
+
+```console
+nick@f1-dash:~$ bun run dev
+[✓] ready on localhost:3000. countdown to spa is live.
+[i] leclerc still leads the british gp replay. he always will.
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📺 The five screens
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| | screen | what it actually shows |
+|---|---|---|
+| 01 | **overview** | next-race hero with a live countdown, circuit outline drawn from real position data, last podium, top 5 |
+| 02 | **calendar** | all 22 rounds with real winner tags — completed rounds dim themselves out of respect |
+| 03 | **standings** | drivers and constructors with points bars, your favorite driver highlighted (stored locally, judged locally) |
+| 04 | **telemetry** | any past session replayed at 1×/5×/20× — speed, gear, throttle, brake, running order, tyres, gaps |
+| 05 | **history** | wins so far this season + the last ten world champions |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Run it
 
-## Learn More
+Needs [bun](https://bun.sh).
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+git clone https://github.com/nitrimandylis/f1-dash.git
+cd f1-dash
+bun install
+bun run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+No env vars, no keys, no accounts — both APIs are public and the rate limits are handled with caching and polite retries.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔩 Under the hood
 
-## Deploy on Vercel
+```mermaid
+flowchart LR
+    J[jolpica api] -->|ISR cache, 1h| S[server components]
+    O[openf1 api] -->|historical, free| R[replay engine]
+    S --> V[five views]
+    R --> V
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| layer | path | job |
+|---|---|---|
+| jolpica client | `lib/jolpica.ts` | standings, calendar, results, champions — typed, cached, 429-tolerant |
+| openf1 client | `lib/openf1.ts` | sessions, drivers, car data, positions, stints, laps, gaps + the track outline |
+| replay math | `lib/replay.ts` | pure helpers: binary search over 20k samples, running order, lap/tyre lookups — the tested part |
+| replay ui | `components/replay.tsx` | the state machine: pick session → load → advance a simulated clock every 250ms |
+| views | `app/*/page.tsx` | one route per screen, server-rendered off the cached data |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · bun — that's the whole list.
+
+---
+
+<div align="center">
+
+**[Nick Trimandylis](https://github.com/nitrimandylis)**
+
+`THE DATA IS REAL — THE DRIVING IS SOMEBODY ELSE'S`
+
+MIT licensed.
+
+</div>
