@@ -55,7 +55,7 @@ export default async function CalendarPage() {
           return (
             <div
               key={race.round}
-              className="grid grid-cols-[56px_1.4fr_1fr_220px] items-center gap-[18px] rounded-2xl border px-[22px] py-[15px]"
+              className="grid grid-cols-[40px_1fr_auto] items-center gap-3 rounded-2xl border px-4 py-3 lg:grid-cols-[56px_1.4fr_1fr_220px] lg:gap-[18px] lg:px-[22px] lg:py-[15px]"
               style={{
                 background: isNext
                   ? "rgba(225,6,0,0.07)"
@@ -73,9 +73,10 @@ export default async function CalendarPage() {
                 <div className="text-base font-semibold">{race.name}</div>
                 <div className="mt-px text-[12.5px] text-[#F5F3F1]/50">
                   {race.circuit}
+                  <span className="lg:hidden"> · {dateRange(race)}</span>
                 </div>
               </div>
-              <div className="text-[13.5px] text-[#F5F3F1]/65">
+              <div className="hidden text-[13.5px] text-[#F5F3F1]/65 lg:block">
                 {dateRange(race)}
               </div>
               <div className="flex items-center justify-end gap-[9px]">

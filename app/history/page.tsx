@@ -16,7 +16,7 @@ export default async function HistoryPage() {
   return (
     <div>
       <PageHeader title="History" sub={`${round} of 22 rounds complete`} />
-      <div className="grid grid-cols-2 items-start gap-5">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
         <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
           <div className="mb-5 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             2026 · WINS SO FAR

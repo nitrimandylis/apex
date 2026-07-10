@@ -11,6 +11,9 @@ export function FavoriteProvider({ children }: { children: React.ReactNode }) {
   const [favorite, setFavoriteState] = useState("");
 
   useEffect(() => {
+    // Deliberate one-time sync read: localStorage is only available after
+    // mount, and the server must render the no-favorite state first.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFavoriteState(localStorage.getItem("apex-favorite") ?? "");
   }, []);
 

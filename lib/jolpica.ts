@@ -48,6 +48,44 @@ export type Champion = {
   constructorId: string;
 };
 
+// Raw shapes as Jolpica returns them (only the fields we read).
+// Numbers arrive as strings, e.g. points: "179".
+type RawSessionTime = { date?: string; time?: string };
+type RawRace = {
+  round: string;
+  raceName: string;
+  date: string;
+  time: string;
+  Circuit: {
+    circuitName: string;
+    Location: { locality: string; country: string };
+  };
+  FirstPractice?: RawSessionTime;
+  SecondPractice?: RawSessionTime;
+  ThirdPractice?: RawSessionTime;
+  Qualifying?: RawSessionTime;
+  Sprint?: RawSessionTime;
+};
+type RawDriverStanding = {
+  position: string;
+  points: string;
+  wins: string;
+  Driver: { givenName: string; familyName: string };
+  Constructors: { name: string; constructorId: string }[];
+};
+type RawConstructorStanding = {
+  position: string;
+  points: string;
+  Constructor: { name: string; constructorId: string };
+};
+type RawResult = {
+  position: string;
+  status: string;
+  Time?: { time: string };
+  Driver: { familyName: string };
+  Constructor: { constructorId: string };
+};
+
 async function getJson(path: string, revalidate: number) {
   // Jolpica's free tier allows ~4 requests per second; on a cold cache we
   // can trip it, so wait and retry a couple of times on 429.
@@ -67,11 +105,11 @@ async function getJson(path: string, revalidate: number) {
 
 export async function getCalendar(): Promise<Race[]> {
   const data = await getJson("/current.json", HOUR);
-  const races = data.MRData.RaceTable.Races;
+  const races: RawRace[] = data.MRData.RaceTable.Races;
 
-  return races.map((r: any) => {
+  return races.map((r) => {
     const sessions: { label: string; start: string }[] = [];
-    const named = [
+    const named: [string, RawSessionTime | undefined][] = [
       ["FP1", r.FirstPractice],
       ["FP2", r.SecondPractice],
       ["FP3", r.ThirdPractice],
@@ -81,7 +119,7 @@ export async function getCalendar(): Promise<Race[]> {
     ];
     for (const [label, s] of named) {
       if (s && s.date && s.time) {
-        sessions.push({ label: label as string, start: `${s.date}T${s.time}` });
+        sessions.push({ label, start: `${s.date}T${s.time}` });
       }
     }
     return {
@@ -104,7 +142,7 @@ export async function getDriverStandings(): Promise<{
   const data = await getJson("/current/driverstandings.json", HOUR);
   const list = data.MRData.StandingsTable.StandingsLists[0];
 
-  const standings = list.DriverStandings.map((s: any) => ({
+  const standings = list.DriverStandings.map((s: RawDriverStanding) => ({
     pos: Number(s.position),
     name: `${s.Driver.givenName} ${s.Driver.familyName}`,
     familyName: s.Driver.familyName,
@@ -123,7 +161,7 @@ export async function getConstructorStandings(): Promise<
   const data = await getJson("/current/constructorstandings.json", HOUR);
   const list = data.MRData.StandingsTable.StandingsLists[0];
 
-  return list.ConstructorStandings.map((s: any) => ({
+  return list.ConstructorStandings.map((s: RawConstructorStanding) => ({
     pos: Number(s.position),
     name: s.Constructor.name,
     constructorId: s.Constructor.constructorId,
@@ -140,7 +178,7 @@ export async function getLastRace(): Promise<{
   const data = await getJson("/current/last/results.json", HOUR);
   const race = data.MRData.RaceTable.Races[0];
 
-  const podium = race.Results.slice(0, 3).map((x: any) => ({
+  const podium = race.Results.slice(0, 3).map((x: RawResult) => ({
     pos: Number(x.position),
     familyName: x.Driver.familyName,
     constructorId: x.Constructor.constructorId,

@@ -14,6 +14,9 @@ export default function PageHeader({
   // Rendered after mount so the server and browser never disagree on the date.
   const [today, setToday] = useState("");
   useEffect(() => {
+    // Deliberate one-time sync set: the date must only render client-side
+    // so the server and browser never disagree.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setToday(
       new Date().toLocaleDateString("en-GB", {
         weekday: "short",
@@ -25,7 +28,7 @@ export default function PageHeader({
   }, []);
 
   return (
-    <div className="mb-[30px] flex items-center gap-4">
+    <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 lg:mb-[30px]">
       <div className="text-[26px] font-semibold tracking-[0.01em]">{title}</div>
       <div className="flex-1" />
       {children}

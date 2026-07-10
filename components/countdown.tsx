@@ -14,14 +14,14 @@ function Box({
 }) {
   return (
     <div
-      className="w-[86px] rounded-2xl border py-3.5 text-center"
+      className="w-[68px] rounded-2xl border py-3.5 text-center lg:w-[86px]"
       style={{
         background: accent ? "rgba(225,6,0,0.10)" : "rgba(255,255,255,0.04)",
         borderColor: accent ? "rgba(225,6,0,0.35)" : "rgba(255,255,255,0.07)",
       }}
     >
       <div
-        className="text-[34px] leading-none font-bold"
+        className="text-[26px] leading-none font-bold lg:text-[34px]"
         style={accent ? { color: "#FF564E" } : undefined}
       >
         {value}
@@ -57,7 +57,7 @@ export default function Countdown({ targetIso }: { targetIso: string }) {
   }, [targetIso]);
 
   return (
-    <div className="mt-[26px] flex gap-3.5">
+    <div className="mt-[26px] flex gap-2.5 lg:gap-3.5">
       <Box value={parts.days} label="DAYS" />
       <Box value={parts.hours} label="HRS" />
       <Box value={parts.mins} label="MIN" />

@@ -63,14 +63,14 @@ export default async function OverviewPage() {
         {/* Hero: next race */}
         {next && (
           <div
-            className="flex overflow-hidden rounded-[22px] border border-white/[0.08] backdrop-blur-[24px]"
+            className="flex flex-col overflow-hidden rounded-[22px] border border-white/[0.08] backdrop-blur-[24px] lg:flex-row"
             style={{
               background:
                 "linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015) 55%), rgba(10,10,13,0.6)",
               boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
             }}
           >
-            <div className="flex flex-1 flex-col gap-1.5 px-[38px] py-[34px]">
+            <div className="flex flex-1 flex-col gap-1.5 px-6 py-6 lg:px-[38px] lg:py-[34px]">
               <div className="flex items-center gap-2.5">
                 <span className="text-[11px] font-bold tracking-[0.2em] text-[#FF4B42]">
                   NEXT RACE
@@ -80,7 +80,7 @@ export default async function OverviewPage() {
                   ROUND {next.round} OF {races.length}
                 </span>
               </div>
-              <div className="mt-1.5 text-[42px] font-bold tracking-[-0.01em]">
+              <div className="mt-1.5 text-[30px] font-bold tracking-[-0.01em] lg:text-[42px]">
                 {next.name}
               </div>
               <div className="text-[15px] text-[#F5F3F1]/60">
@@ -88,7 +88,7 @@ export default async function OverviewPage() {
               </div>
               <Countdown targetIso={next.raceStart} />
             </div>
-            <div className="flex w-[360px] flex-none p-[18px]">
+            <div className="flex h-[220px] w-full flex-none p-[18px] lg:h-auto lg:w-[360px]">
               <div className="relative flex-1 overflow-hidden rounded-2xl bg-white/[0.02] p-4">
                 {outline ? (
                   <TrackMap points={outline} />
@@ -112,7 +112,7 @@ export default async function OverviewPage() {
         )}
 
         {/* Second row */}
-        <div className="grid grid-cols-[1.15fr_1fr_1fr] items-stretch gap-5">
+        <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[1.15fr_1fr_1fr]">
           {/* Telemetry preview */}
           <Link
             href="/telemetry"

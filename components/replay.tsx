@@ -107,7 +107,6 @@ export default function Replay() {
     if (sessionKey === null) {
       return;
     }
-    setDrivers([]);
     getSessionDrivers(sessionKey)
       .then((list) => {
         setDrivers(list);
@@ -294,7 +293,7 @@ export default function Replay() {
         </div>
       </PageHeader>
 
-      <div className="grid grid-cols-[1fr_1.1fr] items-start gap-5">
+      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[1fr_1.1fr]">
         {/* Featured car */}
         <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[30px] py-7 backdrop-blur-[18px]">
           <div className="flex items-center">
@@ -311,7 +310,7 @@ export default function Replay() {
           </div>
 
           <div className="mt-[22px] flex items-baseline gap-3">
-            <div className="text-[96px] leading-none font-bold tracking-[-0.02em]">
+            <div className="text-[64px] leading-none font-bold tracking-[-0.02em] lg:text-[96px]">
               {sample.speed}
             </div>
             <div className="text-base text-[#F5F3F1]/50">km/h</div>

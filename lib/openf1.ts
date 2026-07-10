@@ -13,6 +13,45 @@ const COUNTRY_ALIASES: Record<string, string> = {
 
 type LocationPoint = { x: number; y: number };
 
+// Raw row shapes as OpenF1 returns them (only the fields we read).
+type RawSession = {
+  session_key: number;
+  session_name: string;
+  location: string;
+  date_start: string;
+  date_end: string;
+};
+type RawDriver = {
+  driver_number: number;
+  name_acronym: string;
+  last_name: string;
+  team_name: string;
+};
+type RawCar = {
+  date: string;
+  speed: number;
+  n_gear: number;
+  throttle: number;
+  brake: number;
+};
+type RawPos = { date: string; driver_number: number; position: number };
+type RawStint = {
+  driver_number: number;
+  lap_start: number;
+  lap_end: number;
+  compound: string | null;
+};
+type RawLap = {
+  lap_number: number;
+  date_start: string;
+  lap_duration: number | null;
+};
+type RawInterval = {
+  date: string;
+  driver_number: number;
+  gap_to_leader: number | null;
+};
+
 async function getJsonCached(path: string) {
   // OpenF1 rate-limits bursts; wait and retry on 429 (only hit on cold cache).
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -40,11 +79,11 @@ export async function getTrackOutline(
 
     let session: { session_key: number; date_start: string } | null = null;
     for (const year of [2026, 2025, 2024]) {
-      const sessions = await getJsonCached(
+      const sessions: RawSession[] = await getJsonCached(
         `/sessions?year=${year}&country_name=${encodeURIComponent(name)}&session_name=Race`,
       );
       const past = sessions.filter(
-        (s: any) => new Date(s.date_start).getTime() < Date.now(),
+        (s) => new Date(s.date_start).getTime() < Date.now(),
       );
       if (past.length > 0) {
         session = past[past.length - 1];
@@ -55,7 +94,7 @@ export async function getTrackOutline(
       return null;
     }
 
-    const drivers = await getJsonCached(
+    const drivers: RawDriver[] = await getJsonCached(
       `/drivers?session_key=${session.session_key}`,
     );
     if (drivers.length === 0) {
@@ -63,19 +102,19 @@ export async function getTrackOutline(
     }
     const driverNumber = drivers[0].driver_number;
 
-    const laps = await getJsonCached(
+    const laps: RawLap[] = await getJsonCached(
       `/laps?session_key=${session.session_key}&driver_number=${driverNumber}`,
     );
     const lap = laps.find(
-      (l: any) => l.lap_number >= 2 && l.lap_duration !== null,
+      (l) => l.lap_number >= 2 && l.lap_duration !== null,
     );
     if (!lap) {
       return null;
     }
 
     const start = new Date(lap.date_start);
-    const end = new Date(start.getTime() + lap.lap_duration * 1000);
-    const points = await getJsonCached(
+    const end = new Date(start.getTime() + (lap.lap_duration ?? 0) * 1000);
+    const points: LocationPoint[] = await getJsonCached(
       `/location?session_key=${session.session_key}&driver_number=${driverNumber}` +
         `&date%3E${start.toISOString()}&date%3C${end.toISOString()}`,
     );
@@ -83,7 +122,7 @@ export async function getTrackOutline(
     if (points.length < 50) {
       return null;
     }
-    return points.map((p: any) => ({ x: p.x, y: p.y }));
+    return points.map((p) => ({ x: p.x, y: p.y }));
   } catch {
     // The map is decoration — never let OpenF1 downtime break the page.
     return null;
@@ -152,7 +191,7 @@ export async function getPastSessions(): Promise<Session[]> {
   // Data turns free/historical 30 minutes after a session ends, so only
   // offer sessions past that margin.
   const cutoff = Date.now() - 30 * 60 * 1000;
-  let sessions: any[] = await getJson("/sessions?year=2026");
+  let sessions: RawSession[] = await getJson("/sessions?year=2026");
   sessions = sessions.filter((s) => new Date(s.date_end).getTime() < cutoff);
   if (sessions.length === 0) {
     sessions = await getJson("/sessions?year=2025");
@@ -171,8 +210,8 @@ export async function getPastSessions(): Promise<Session[]> {
 }
 
 export async function getSessionDrivers(key: number): Promise<OF1Driver[]> {
-  const drivers = await getJson(`/drivers?session_key=${key}`);
-  return drivers.map((d: any) => ({
+  const drivers: RawDriver[] = await getJson(`/drivers?session_key=${key}`);
+  return drivers.map((d) => ({
     number: d.driver_number,
     acronym: d.name_acronym,
     lastName: d.last_name,
@@ -188,11 +227,11 @@ export async function getCarData(
 ): Promise<CarSample[]> {
   // Bounded to the session window: OpenF1 sometimes stores stray samples
   // from the day before, which would break the replay clock.
-  const rows = await getJson(
+  const rows: RawCar[] = await getJson(
     `/car_data?session_key=${key}&driver_number=${driver}` +
       `&date%3E${fromIso}&date%3C${toIso}`,
   );
-  return rows.map((r: any) => ({
+  return rows.map((r) => ({
     t: new Date(r.date).getTime(),
     speed: r.speed,
     gear: r.n_gear,
@@ -202,8 +241,8 @@ export async function getCarData(
 }
 
 export async function getPositions(key: number): Promise<PosSample[]> {
-  const rows = await getJson(`/position?session_key=${key}`);
-  return rows.map((r: any) => ({
+  const rows: RawPos[] = await getJson(`/position?session_key=${key}`);
+  return rows.map((r) => ({
     t: new Date(r.date).getTime(),
     driver: r.driver_number,
     position: r.position,
@@ -212,8 +251,8 @@ export async function getPositions(key: number): Promise<PosSample[]> {
 
 // All drivers' stints for the session in one request.
 export async function getStints(key: number): Promise<Stint[]> {
-  const rows = await getJson(`/stints?session_key=${key}`);
-  return rows.map((r: any) => ({
+  const rows: RawStint[] = await getJson(`/stints?session_key=${key}`);
+  return rows.map((r) => ({
     driver: r.driver_number,
     lapStart: r.lap_start,
     lapEnd: r.lap_end,
@@ -222,10 +261,10 @@ export async function getStints(key: number): Promise<Stint[]> {
 }
 
 export async function getLaps(key: number, driver: number): Promise<Lap[]> {
-  const rows = await getJson(
+  const rows: RawLap[] = await getJson(
     `/laps?session_key=${key}&driver_number=${driver}`,
   );
-  return rows.map((r: any) => ({
+  return rows.map((r) => ({
     lap: r.lap_number,
     t: new Date(r.date_start).getTime(),
     duration: r.lap_duration,
@@ -239,7 +278,7 @@ export async function getIntervalWindow(
 ): Promise<IntervalSample[]> {
   const from = new Date(fromMs).toISOString();
   const to = new Date(toMs).toISOString();
-  let rows: any[];
+  let rows: RawInterval[];
   try {
     rows = await getJson(
       `/intervals?session_key=${key}&date%3E${from}&date%3C${to}`,
@@ -248,7 +287,7 @@ export async function getIntervalWindow(
     // OpenF1 answers 404 for an empty window — treat as no data.
     return [];
   }
-  return rows.map((r: any) => ({
+  return rows.map((r) => ({
     t: new Date(r.date).getTime(),
     driver: r.driver_number,
     gapToLeader: typeof r.gap_to_leader === "number" ? r.gap_to_leader : null,

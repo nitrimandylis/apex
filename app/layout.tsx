@@ -31,7 +31,7 @@ export default async function RootLayout({
     <html lang="en" className={outfit.variable}>
       <body>
         <div
-          className="flex min-h-screen"
+          className="flex min-h-screen flex-col lg:flex-row"
           style={{
             background:
               "radial-gradient(1100px 520px at 82% -8%, rgba(225,6,0,0.09), transparent 60%), radial-gradient(900px 500px at -10% 110%, rgba(255,255,255,0.03), transparent 55%), #060608",
@@ -50,8 +50,8 @@ export default async function RootLayout({
               }
               drivers={standings.map((d) => d.familyName)}
             />
-            <div className="h-screen flex-1 overflow-y-auto">
-              <div className="mx-auto max-w-[1280px] px-12 pt-[38px] pb-[60px]">
+            <div className="flex-1 lg:h-screen lg:overflow-y-auto">
+              <div className="mx-auto max-w-[1280px] px-5 pt-6 pb-[60px] lg:px-12 lg:pt-[38px]">
                 {children}
               </div>
             </div>

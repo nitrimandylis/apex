@@ -18,7 +18,7 @@ export default async function StandingsPage() {
         title="Championship standings"
         sub={`${round} of 22 rounds complete`}
       />
-      <div className="grid grid-cols-[1.25fr_1fr] items-start gap-5">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
         <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
           <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             DRIVERS · AFTER ROUND {round}
@@ -40,7 +40,7 @@ export default async function StandingsPage() {
           </div>
         </div>
 
-        <div className="sticky top-6 rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
+        <div className="rounded-[20px] lg:sticky lg:top-6 border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
           <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             CONSTRUCTORS
           </div>
