@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFavorite } from "@/lib/favorite";
+import Logo from "@/components/logo";
 
 const NAV_ITEMS = [
   { href: "/", label: "Overview" },
@@ -28,15 +29,7 @@ export default function Sidebar({
   const pathname = usePathname();
   const { favorite, setFavorite } = useFavorite();
 
-  const logo = (
-    <div
-      className="h-3.5 w-3.5 flex-none rotate-45 rounded-[4px]"
-      style={{
-        background: "linear-gradient(135deg, #FF2A1F, #B50500)",
-        boxShadow: "0 0 18px rgba(225,6,0,0.55)",
-      }}
-    />
-  );
+  const logo = <Logo size={22} />;
 
   return (
     <>

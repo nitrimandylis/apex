@@ -1,14 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="apex" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FF2A1F"/>
-      <stop offset="1" stop-color="#B50500"/>
+    <linearGradient id="apex-line" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#B50500"/>
+      <stop offset="1" stop-color="#FF2A1F"/>
     </linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="4"/>
-    </filter>
   </defs>
   <rect width="64" height="64" rx="14" fill="#060608"/>
-  <rect x="20" y="20" width="24" height="24" rx="6" fill="url(#apex)" filter="url(#glow)" opacity="0.6" transform="rotate(45 32 32)"/>
-  <rect x="20" y="20" width="24" height="24" rx="6" fill="url(#apex)" transform="rotate(45 32 32)"/>
+  <path d="M 19 55 L 19 37 Q 19 19 37 19 L 55 19" fill="none" stroke="url(#apex-line)" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="38" cy="38" r="6" fill="#F5F3F1"/>
 </svg>
