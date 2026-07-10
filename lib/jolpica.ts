@@ -12,6 +12,7 @@ export type Race = {
   round: number;
   name: string;
   circuit: string;
+  circuitId: string;
   locality: string;
   country: string;
   date: string; // race day, YYYY-MM-DD
@@ -60,6 +61,7 @@ type RawRace = {
   time: string;
   Circuit: {
     circuitName: string;
+    circuitId: string;
     Location: { locality: string; country: string };
   };
   FirstPractice?: RawSessionTime;
@@ -128,6 +130,7 @@ export async function getCalendar(): Promise<Race[]> {
       round: Number(r.round),
       name: r.raceName,
       circuit: r.Circuit.circuitName,
+      circuitId: r.Circuit.circuitId,
       locality: r.Circuit.Location.locality,
       country: r.Circuit.Location.country,
       date: r.date,
@@ -319,4 +322,138 @@ export async function getChampions(): Promise<Champion[]> {
     });
   }
   return champions;
+}
+
+// ---- Per-round session results for the race detail pages ----
+
+export type RoundResultRow = {
+  pos: number;
+  familyName: string;
+  fullName: string;
+  constructorId: string;
+  team: string;
+  grid: number; // 0 = pit-lane start
+  time: string; // winner absolute, others gap, else status
+  points: number;
+  fastestLap: boolean;
+};
+
+type RawRoundResult = RawResult & {
+  grid: string;
+  points: string;
+  Driver: { givenName: string; familyName: string };
+  Constructor: { constructorId: string; name: string };
+  FastestLap?: { rank: string };
+};
+
+function mapResultRows(rows: RawRoundResult[]): RoundResultRow[] {
+  return rows.map((x) => ({
+    pos: Number(x.position),
+    familyName: x.Driver.familyName,
+    fullName: `${x.Driver.givenName} ${x.Driver.familyName}`,
+    constructorId: x.Constructor.constructorId,
+    team: x.Constructor.name,
+    grid: Number(x.grid),
+    time: x.Time ? x.Time.time : x.status,
+    points: Number(x.points),
+    fastestLap: x.FastestLap?.rank === "1",
+  }));
+}
+
+// Empty array when the session has no data yet (or the round has no sprint).
+async function getRoundTable(path: string, key: string): Promise<RawRoundResult[]> {
+  try {
+    const data = await getJson(path, HOUR);
+    const races = data.MRData.RaceTable.Races;
+    if (races.length === 0) {
+      return [];
+    }
+    return races[0][key] ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getRoundResults(round: number): Promise<RoundResultRow[]> {
+  return mapResultRows(await getRoundTable(`/current/${round}/results.json`, "Results"));
+}
+
+export async function getRoundSprint(round: number): Promise<RoundResultRow[]> {
+  return mapResultRows(await getRoundTable(`/current/${round}/sprint.json`, "SprintResults"));
+}
+
+export type RoundQualiRow = {
+  pos: number;
+  familyName: string;
+  fullName: string;
+  constructorId: string;
+  team: string;
+  q1: string;
+  q2: string;
+  q3: string;
+};
+
+export async function getRoundQualifying(round: number): Promise<RoundQualiRow[]> {
+  type RawQ = {
+    position: string;
+    Q1?: string;
+    Q2?: string;
+    Q3?: string;
+    Driver: { givenName: string; familyName: string };
+    Constructor: { constructorId: string; name: string };
+  };
+  const rows: RawQ[] = await getRoundTable(
+    `/current/${round}/qualifying.json`,
+    "QualifyingResults",
+  );
+  return rows.map((q) => ({
+    pos: Number(q.position),
+    familyName: q.Driver.familyName,
+    fullName: `${q.Driver.givenName} ${q.Driver.familyName}`,
+    constructorId: q.Constructor.constructorId,
+    team: q.Constructor.name,
+    q1: q.Q1 ?? "—",
+    q2: q.Q2 ?? "—",
+    q3: q.Q3 ?? "—",
+  }));
+}
+
+export type CircuitWinner = {
+  season: number;
+  familyName: string;
+  constructorId: string;
+  team: string;
+};
+
+// Last n winners at a circuit, newest first (Spa has 58 all-time races).
+export async function getCircuitWinners(
+  circuitId: string,
+  n: number,
+): Promise<CircuitWinner[]> {
+  try {
+    const head = await getJson(`/circuits/${circuitId}/results/1.json?limit=1`, WEEK);
+    const total = Number(head.MRData.total);
+    if (total === 0) {
+      return [];
+    }
+    const offset = Math.max(0, total - n);
+    const data = await getJson(
+      `/circuits/${circuitId}/results/1.json?limit=${n}&offset=${offset}`,
+      WEEK,
+    );
+    const races = data.MRData.RaceTable.Races as {
+      season: string;
+      Results: RawRoundResult[];
+    }[];
+    return races
+      .map((r) => ({
+        season: Number(r.season),
+        familyName: r.Results[0].Driver.familyName,
+        constructorId: r.Results[0].Constructor.constructorId,
+        team: r.Results[0].Constructor.name,
+      }))
+      .reverse();
+  } catch {
+    return [];
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/page-header";
 import TrackMap from "@/components/track-map";
 import Headshot from "@/components/headshot";
@@ -91,6 +92,7 @@ function Bar({
 
 export default function Replay() {
   const { favorite } = useFavorite();
+  const requestedSession = useSearchParams().get("session");
 
   const [sessions, setSessions] = useState<Session[]>([]);
   const [sessionKey, setSessionKey] = useState<number | null>(null);
@@ -115,10 +117,14 @@ export default function Replay() {
     getPastSessions()
       .then((list) => {
         setSessions(list);
+        // Deep link from a race page wins; otherwise default to the last race.
+        const requested = list.find((s) => String(s.key) === requestedSession);
         const lastRace = list.find((s) => s.isRace);
-        setSessionKey((lastRace ?? list[0])?.key ?? null);
+        setSessionKey((requested ?? lastRace ?? list[0])?.key ?? null);
       })
       .catch(() => setError("Could not load sessions from OpenF1."));
+    // The query param only matters on first load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load the driver list whenever the chosen session changes.

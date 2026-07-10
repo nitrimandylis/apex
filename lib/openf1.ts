@@ -45,6 +45,23 @@ type RawInterval = {
   gap_to_leader: number | null;
 };
 
+// Server-side fetch with ISR caching and 429 retry — detail pages fire
+// several OpenF1 requests at once and trip the burst limit otherwise.
+async function fetchCachedRetry(
+  path: string,
+  revalidate: number,
+): Promise<Response> {
+  let res: Response | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    res = await fetch(`${BASE}${path}`, { next: { revalidate } });
+    if (res.status !== 429) {
+      return res;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  }
+  return res as Response;
+}
+
 // ---- Client-side fetchers for the telemetry replay ----
 // These run in the browser, so plain fetch with no Next cache options.
 
@@ -315,9 +332,7 @@ export async function getLocationWindow(
 export async function getHeadshots(): Promise<Record<string, string>> {
   try {
     const DAY = 86400;
-    const res = await fetch(`${BASE}/sessions?year=2026&session_name=Race`, {
-      next: { revalidate: DAY },
-    });
+    const res = await fetchCachedRetry(`/sessions?year=2026&session_name=Race`, DAY);
     if (!res.ok) {
       return {};
     }
@@ -330,9 +345,7 @@ export async function getHeadshots(): Promise<Record<string, string>> {
     }
     const key = past[past.length - 1].session_key;
 
-    const dRes = await fetch(`${BASE}/drivers?session_key=${key}`, {
-      next: { revalidate: DAY },
-    });
+    const dRes = await fetchCachedRetry(`/drivers?session_key=${key}`, DAY);
     if (!dRes.ok) {
       return {};
     }
@@ -347,5 +360,126 @@ export async function getHeadshots(): Promise<Record<string, string>> {
     return map;
   } catch {
     return {}; // faces are decoration — never break a page over them
+  }
+}
+
+// ---- Server-side helpers for the race detail pages ----
+
+// All OpenF1 sessions inside a race weekend's date window (one GP per
+// weekend, so a date filter is unambiguous). Server, cached hourly.
+export async function getWeekendSessions(
+  fromIso: string,
+  toIso: string,
+): Promise<Session[]> {
+  try {
+    const year = new Date(fromIso).getUTCFullYear();
+    const res = await fetchCachedRetry(`/sessions?year=${year}`, 3600);
+    if (!res.ok) {
+      return [];
+    }
+    const sessions: RawSession[] = await res.json();
+    const from = new Date(fromIso).getTime() - 86400000;
+    const to = new Date(toIso).getTime() + 86400000;
+    return sessions
+      .filter((s) => {
+        const t = new Date(s.date_start).getTime();
+        return t >= from && t <= to;
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.date_start).getTime() - new Date(b.date_start).getTime(),
+      )
+      .map((s) => ({
+        key: s.session_key,
+        name: s.session_name,
+        location: s.location,
+        country: s.country_name,
+        start: s.date_start,
+        end: s.date_end,
+        isRace: s.session_name === "Race" || s.session_name === "Sprint",
+      }));
+  } catch {
+    return [];
+  }
+}
+
+export type SessionResultRow = {
+  pos: number;
+  acronym: string;
+  lastName: string;
+  teamName: string;
+  headshot: string;
+  laps: number;
+  bestTime: number | null; // seconds
+  gap: number | null; // seconds behind leader
+  status: string; // "", "DNF", "DNS", "DSQ"
+};
+
+// Classification for sessions Jolpica doesn't cover (practice, sprint
+// quali), joined with driver names. Server, cached weekly once past.
+export async function getSessionResult(
+  key: number,
+): Promise<SessionResultRow[]> {
+  type RawSR = {
+    position: number | null;
+    driver_number: number;
+    number_of_laps: number | null;
+    dnf: boolean;
+    dns: boolean;
+    dsq: boolean;
+    duration: number | number[] | null;
+    gap_to_leader: number | number[] | string | null;
+  };
+  function best(v: number | number[] | null): number | null {
+    if (v === null) {
+      return null;
+    }
+    if (typeof v === "number") {
+      return v;
+    }
+    const nums = v.filter((x) => typeof x === "number" && x > 0);
+    return nums.length > 0 ? Math.min(...nums) : null;
+  }
+  function lastNum(v: RawSR["gap_to_leader"]): number | null {
+    if (typeof v === "number") {
+      return v;
+    }
+    if (Array.isArray(v)) {
+      const nums = v.filter((x) => typeof x === "number");
+      return nums.length > 0 ? nums[nums.length - 1] : null;
+    }
+    return null;
+  }
+  try {
+    const [srRes, dRes] = await Promise.all([
+      fetchCachedRetry(`/session_result?session_key=${key}`, 604800),
+      fetchCachedRetry(`/drivers?session_key=${key}`, 604800),
+    ]);
+    if (!srRes.ok || !dRes.ok) {
+      return [];
+    }
+    const rows: RawSR[] = await srRes.json();
+    const drivers: RawDriver[] = await dRes.json();
+    const byNumber = new Map(drivers.map((d) => [d.driver_number, d]));
+
+    return rows
+      .filter((r) => r.position !== null)
+      .sort((a, b) => (a.position ?? 99) - (b.position ?? 99))
+      .map((r) => {
+        const d = byNumber.get(r.driver_number);
+        return {
+          pos: r.position ?? 0,
+          acronym: d?.name_acronym ?? `#${r.driver_number}`,
+          lastName: d?.last_name ?? `#${r.driver_number}`,
+          teamName: d?.team_name ?? "",
+          headshot: d?.headshot_url ?? "",
+          laps: r.number_of_laps ?? 0,
+          bestTime: best(r.duration),
+          gap: lastNum(r.gap_to_leader),
+          status: r.dsq ? "DSQ" : r.dns ? "DNS" : r.dnf ? "DNF" : "",
+        };
+      });
+  } catch {
+    return [];
   }
 }

@@ -7,7 +7,7 @@ A personal Formula 1 dashboard for the 2026 season. Dark glass UI, Outfit font, 
 **Built and working.** All five views live on real data:
 
 - **Overview** — next-race hero with live countdown, circuit outline, weekend schedule strip with local session times, last-race podium + pole line, top-5 standings with driver headshots.
-- **Calendar** — 22 rounds with flags, sprint badges, mini track-shape thumbnails, real winner tags with headshots, next-race highlight.
+- **Calendar** — 22 rounds with flags, sprint badges, mini track-shape thumbnails, real winner tags with headshots, next-race highlight. Every row clicks through to `/calendar/[round]`: past GPs show full classifications for every session of the weekend (practice and sprint quali via OpenF1, sprint/quali/race via Jolpica) with grid-position deltas, fastest-lap tags, and a "Replay this session" deep link into telemetry; future GPs show countdown, track map, schedule in circuit + local time, and past winners at the circuit.
 - **Standings** — title-fight points-progression chart (per-round cumulative, race + sprint), full drivers + constructors tables with headshots and points bars, favorite-driver highlight.
 - **Telemetry** — broadcast-grade replay of any past session: speed/gear/throttle/brake, running order with tyres and gaps, live car dot on the track map, weather chips, race-control feed, playable team radio synced to the replay clock; play/pause, 1×/5×/20×, seek.
 - **History** — wins so far + last 10 champions.
@@ -18,7 +18,6 @@ Official-asset policy: no bundled F1/team artwork; driver headshots and team-rad
 
 ## Phase 3 candidates
 
-- Per-race detail pages from calendar rows (quali + race classification, per-race chart).
 - Multi-driver telemetry compare in replay.
 - True live telemetry (paid OpenF1 tier or F1 SignalR + persistent server) — architecture already isolates this behind `lib/openf1.ts`.
 

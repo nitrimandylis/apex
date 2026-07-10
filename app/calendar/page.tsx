@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PageHeader from "@/components/page-header";
 import TrackMap from "@/components/track-map";
 import Headshot from "@/components/headshot";
@@ -61,9 +62,10 @@ export default async function CalendarPage() {
           }
 
           return (
-            <div
+            <Link
+              href={`/calendar/${race.round}`}
               key={race.round}
-              className="grid grid-cols-[40px_1fr_auto] items-center gap-3 rounded-2xl border px-4 py-3 lg:grid-cols-[56px_64px_1.3fr_1fr_230px] lg:gap-[18px] lg:px-[22px] lg:py-[15px]"
+              className="grid grid-cols-[40px_1fr_auto] items-center gap-3 rounded-2xl border px-4 py-3 hover:border-[#E10600]/40 lg:grid-cols-[56px_64px_1.3fr_1fr_230px] lg:gap-[18px] lg:px-[22px] lg:py-[15px]"
               style={{
                 background: isNext
                   ? "rgba(225,6,0,0.07)"
@@ -123,7 +125,7 @@ export default async function CalendarPage() {
                   {tag}
                 </span>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
