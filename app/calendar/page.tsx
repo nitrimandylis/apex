@@ -1,7 +1,12 @@
 import PageHeader from "@/components/page-header";
+import TrackMap from "@/components/track-map";
+import Headshot from "@/components/headshot";
 import { getCalendar, getSeasonWinners } from "@/lib/jolpica";
+import { getHeadshots } from "@/lib/openf1";
 import { nextRace } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
+import { flagFor } from "@/lib/flags";
+import { outlineFor } from "@/lib/outlines";
 
 function dateRange(race: { sessions: { start: string }[]; date: string }) {
   // Weekend span like "17–19 Jul" from first session to race day.
@@ -20,6 +25,7 @@ export default async function CalendarPage() {
     getCalendar(),
     getSeasonWinners(),
   ]);
+  const headshots = await getHeadshots();
   const now = new Date();
   const next = nextRace(races, now);
 
@@ -29,6 +35,8 @@ export default async function CalendarPage() {
       <div className="flex flex-col gap-2.5">
         {races.map((race) => {
           const winner = winners[race.round];
+          const outline = outlineFor(race.locality);
+          const isSprint = race.sessions.some((s) => s.label === "SPRINT");
           const isNext = race.round === next?.round;
           const isDone = !isNext && new Date(race.raceStart) < now && !!winner;
 
@@ -55,7 +63,7 @@ export default async function CalendarPage() {
           return (
             <div
               key={race.round}
-              className="grid grid-cols-[40px_1fr_auto] items-center gap-3 rounded-2xl border px-4 py-3 lg:grid-cols-[56px_1.4fr_1fr_220px] lg:gap-[18px] lg:px-[22px] lg:py-[15px]"
+              className="grid grid-cols-[40px_1fr_auto] items-center gap-3 rounded-2xl border px-4 py-3 lg:grid-cols-[56px_64px_1.3fr_1fr_230px] lg:gap-[18px] lg:px-[22px] lg:py-[15px]"
               style={{
                 background: isNext
                   ? "rgba(225,6,0,0.07)"
@@ -69,8 +77,19 @@ export default async function CalendarPage() {
               <div className="text-[13px] font-bold tracking-[0.08em] text-[#F5F3F1]/45">
                 R{String(race.round).padStart(2, "0")}
               </div>
+              <div className="hidden h-10 lg:block">
+                {outline && <TrackMap points={outline} mini />}
+              </div>
               <div>
-                <div className="text-base font-semibold">{race.name}</div>
+                <div className="flex items-center gap-2 text-base font-semibold">
+                  <span>{flagFor(race.country)}</span>
+                  <span>{race.name}</span>
+                  {isSprint && (
+                    <span className="rounded-md border border-[#FFD12E]/40 bg-[#FFD12E]/10 px-1.5 py-0.5 text-[9.5px] font-bold tracking-[0.14em] text-[#FFD12E]/90">
+                      SPRINT
+                    </span>
+                  )}
+                </div>
                 <div className="mt-px text-[12.5px] text-[#F5F3F1]/50">
                   {race.circuit}
                   <span className="lg:hidden"> · {dateRange(race)}</span>
@@ -80,6 +99,14 @@ export default async function CalendarPage() {
                 {dateRange(race)}
               </div>
               <div className="flex items-center justify-end gap-[9px]">
+                {isDone && winner && (
+                  <Headshot
+                    src={headshots[winner.familyName.toLowerCase()] ?? ""}
+                    name={winner.familyName}
+                    color={TEAM_COLORS[winner.constructorId] ?? "#B6BABD"}
+                    size={20}
+                  />
+                )}
                 <span
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ background: tagDot }}

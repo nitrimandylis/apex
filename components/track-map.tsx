@@ -1,8 +1,11 @@
 // Draws a circuit outline from one lap of real car position data.
+// `mini` drops the glow layer for small thumbnail use.
 export default function TrackMap({
   points,
+  mini = false,
 }: {
   points: { x: number; y: number }[];
+  mini?: boolean;
 }) {
   const xs = points.map((p) => p.x);
   const ys = points.map((p) => p.y);
@@ -28,22 +31,24 @@ export default function TrackMap({
 
   return (
     <svg viewBox="0 0 100 100" className="h-full w-full">
-      <polyline
-        points={path}
-        fill="none"
-        stroke="#E10600"
-        strokeOpacity={0.35}
-        strokeWidth={5}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        style={{ filter: "blur(3px)" }}
-      />
+      {!mini && (
+        <polyline
+          points={path}
+          fill="none"
+          stroke="#E10600"
+          strokeOpacity={0.35}
+          strokeWidth={5}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          style={{ filter: "blur(3px)" }}
+        />
+      )}
       <polyline
         points={path}
         fill="none"
         stroke="#F5F3F1"
-        strokeOpacity={0.9}
-        strokeWidth={2}
+        strokeOpacity={mini ? 0.55 : 0.9}
+        strokeWidth={mini ? 3 : 2}
         strokeLinejoin="round"
         strokeLinecap="round"
       />
