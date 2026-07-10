@@ -114,9 +114,12 @@ export type IntervalSample = {
   gapToLeader: number | null;
 };
 
-async function getJson(path: string) {
+async function getJson(path: string, revalidate?: number) {
+  // `next` is ignored by browsers; on the server it enables the data cache,
+  // so shared fetchers work for both the replay (client) and pages (server).
+  const opts = revalidate ? { next: { revalidate } } : undefined;
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await fetch(`${BASE}${path}`);
+    const res = await fetch(`${BASE}${path}`, opts);
     if (res.ok) {
       return res.json();
     }
@@ -187,7 +190,7 @@ export async function getCarData(
 }
 
 export async function getPositions(key: number): Promise<PosSample[]> {
-  const rows: RawPos[] = await getJson(`/position?session_key=${key}`);
+  const rows: RawPos[] = await getJson(`/position?session_key=${key}`, 604800);
   return rows.map((r) => ({
     t: new Date(r.date).getTime(),
     driver: r.driver_number,
@@ -256,7 +259,7 @@ export async function getWeather(key: number): Promise<WeatherSample[]> {
     rainfall: number;
     wind_speed: number;
   };
-  const rows: RawWeather[] = await getJson(`/weather?session_key=${key}`);
+  const rows: RawWeather[] = await getJson(`/weather?session_key=${key}`, 604800);
   return rows.map((r) => ({
     t: new Date(r.date).getTime(),
     airTemp: r.air_temperature,
@@ -280,7 +283,7 @@ export async function getRaceControl(key: number): Promise<RaceControlMsg[]> {
     flag: string | null;
     message: string;
   };
-  const rows: RawRC[] = await getJson(`/race_control?session_key=${key}`);
+  const rows: RawRC[] = await getJson(`/race_control?session_key=${key}`, 604800);
   return rows.map((r) => ({
     t: new Date(r.date).getTime(),
     category: r.category ?? "",
@@ -491,4 +494,28 @@ export async function getSessionResult(
   } catch {
     return [];
   }
+}
+
+export type PitStop = { driver: number; lap: number; laneDuration: number | null };
+
+export async function getPitStops(key: number): Promise<PitStop[]> {
+  type RawPit = {
+    driver_number: number;
+    lap_number: number;
+    lane_duration: number | null;
+  };
+  let rows: RawPit[];
+  try {
+    rows = await getJson(`/pit?session_key=${key}`, 604800);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+  return rows.map((r) => ({
+    driver: r.driver_number,
+    lap: r.lap_number,
+    laneDuration: r.lane_duration,
+  }));
 }

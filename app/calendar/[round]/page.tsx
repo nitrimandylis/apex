@@ -16,12 +16,25 @@ import {
 } from "@/lib/jolpica";
 import {
   getHeadshots,
+  getPitStops,
+  getPositions,
+  getRaceControl,
   getSessionResult,
+  getWeather,
   getWeekendSessions,
+  type RaceControlMsg,
   type Session,
   type SessionResultRow,
 } from "@/lib/openf1";
-import { formatLapTime } from "@/lib/replay";
+import {
+  keyMoments,
+  leadChanges,
+  safetyCars,
+  winnersAndLosers,
+  winningMargin,
+  type Mover,
+} from "@/lib/race-story";
+import { formatElapsed, formatLapTime } from "@/lib/replay";
 import { nameKey } from "@/lib/format";
 import { TEAM_COLORS, colorForTeamName } from "@/lib/colors";
 import { flagFor } from "@/lib/flags";
@@ -80,6 +93,150 @@ function GridDelta({ grid, pos }: { grid: number; pos: number }) {
     </span>
   );
 }
+
+// ---------- editorial sections ----------
+
+function PodiumStep({
+  row,
+  size,
+  big,
+  headshots,
+}: {
+  row?: RoundResultRow;
+  size: number;
+  big?: boolean;
+  headshots: Record<string, string>;
+}) {
+  if (!row) {
+    return <div className="flex-1" />;
+  }
+  const color = TEAM_COLORS[row.constructorId] ?? "#B6BABD";
+  return (
+    <div
+      className="flex flex-1 flex-col items-center gap-2 text-center"
+      style={{ paddingTop: big ? 0 : 26 }}
+    >
+      <Headshot
+        src={headshots[nameKey(row.familyName)] ?? ""}
+        name={row.familyName}
+        color={color}
+        size={size}
+      />
+      <div>
+        <div className="font-bold" style={{ fontSize: big ? 22 : 16 }}>
+          {row.familyName}
+        </div>
+        <div className="text-[12px] text-[#F5F3F1]/50">{row.team}</div>
+        <div
+          className="mt-1 text-[12.5px] font-semibold"
+          style={{ color: big ? "#FF564E" : "rgba(245,243,241,0.65)" }}
+        >
+          {big ? "WINNER" : row.time}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PodiumHero({
+  rows,
+  raceName,
+  headshots,
+}: {
+  rows: RoundResultRow[];
+  raceName: string;
+  headshots: Record<string, string>;
+}) {
+  const p1 = rows.find((r) => r.pos === 1);
+  const p2 = rows.find((r) => r.pos === 2);
+  const p3 = rows.find((r) => r.pos === 3);
+  if (!p1) {
+    return null;
+  }
+  const margin = winningMargin(rows);
+
+  return (
+    <div
+      className="overflow-hidden rounded-[22px] border border-white/[0.08] px-7 py-7 backdrop-blur-[24px]"
+      style={{
+        background:
+          "linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015) 55%), rgba(10,10,13,0.6)",
+        boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+      }}
+    >
+      <div className="mb-1 text-center text-[11px] font-bold tracking-[0.2em] text-[#FF4B42]">
+        RACE REPORT
+      </div>
+      <div className="mb-5 text-center text-[26px] font-bold tracking-[-0.01em] lg:text-[30px]">
+        {p1.familyName} wins the {raceName}
+        {margin !== null && (
+          <span className="text-[#F5F3F1]/50"> by {margin.toFixed(3)}s</span>
+        )}
+      </div>
+      <div className="mx-auto flex max-w-[560px] items-start">
+        <PodiumStep row={p2} size={64} headshots={headshots} />
+        <PodiumStep row={p1} size={88} big headshots={headshots} />
+        <PodiumStep row={p3} size={64} headshots={headshots} />
+      </div>
+    </div>
+  );
+}
+
+function MoverRow({ m, gained }: { m: Mover; gained: boolean }) {
+  const color = TEAM_COLORS[m.row.constructorId] ?? "#B6BABD";
+  return (
+    <div className="flex items-center gap-3 rounded-xl bg-white/[0.02] px-3 py-2">
+      <div className="h-4 w-[3px] rounded-full" style={{ background: color }} />
+      <div className="min-w-0 flex-1 truncate text-[14px] font-medium">
+        {m.row.familyName}
+      </div>
+      {m.dnf ? (
+        <div className="text-[12px] font-bold text-[#FF564E]">
+          DNF from P{m.row.grid}
+        </div>
+      ) : (
+        <div
+          className="text-[12px] font-bold"
+          style={{ color: gained ? "#43B02A" : "#FF564E" }}
+        >
+          P{m.row.grid} → P{m.row.pos}
+          <span className="ml-1.5">
+            {gained ? "▲" : "▼"}
+            {Math.abs(m.delta)}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3.5">
+      <div className="text-[10.5px] tracking-[0.18em] text-[#F5F3F1]/45">
+        {label}
+      </div>
+      <div className="mt-1 text-[20px] leading-tight font-bold">{value}</div>
+      {sub && <div className="mt-0.5 text-[11.5px] text-[#F5F3F1]/45">{sub}</div>}
+    </div>
+  );
+}
+
+function MomentDot({ m }: { m: RaceControlMsg }) {
+  const text = m.message.toUpperCase();
+  let color = "rgba(245,243,241,0.4)";
+  if (m.category === "SafetyCar") color = "#FFD12E";
+  else if (text.includes("PENALTY") || m.flag === "RED") color = "#FF564E";
+  else if (m.flag === "CHEQUERED") color = "#F5F3F1";
+  return (
+    <span
+      className="mt-1.5 h-2 w-2 flex-none rounded-full"
+      style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+    />
+  );
+}
+
+// ---------- classification tables (unchanged layouts) ----------
 
 function RaceTable({
   rows,
@@ -243,6 +400,8 @@ function SessionTable({ rows }: { rows: SessionResultRow[] }) {
   );
 }
 
+// ---------- page ----------
+
 export default async function RaceDetailPage({
   params,
 }: {
@@ -272,11 +431,13 @@ export default async function RaceDetailPage({
 
   // Classification per past session, newest first (the race on top).
   const headshots = pastSessions.length > 0 ? await getHeadshots() : {};
+  let raceRows: RoundResultRow[] = [];
   const cards: { session: Session; node: React.ReactNode }[] = [];
   for (const session of [...pastSessions].reverse()) {
     if (session.name === "Race") {
       const rows = await getRoundResults(round);
       if (rows.length > 0) {
+        raceRows = rows;
         cards.push({
           session,
           node: <RaceTable rows={rows} headshots={headshots} />,
@@ -309,6 +470,74 @@ export default async function RaceDetailPage({
     if (rows.length > 0) {
       cards.push({ session, node: <SessionTable rows={rows} /> });
     }
+  }
+
+  // The editorial layer, once the race itself has data.
+  const raceSession = pastSessions.find((s) => s.name === "Race");
+  let movers: { winners: Mover[]; losers: Mover[] } | null = null;
+  let moments: RaceControlMsg[] = [];
+  let raceStartMs = 0;
+  let stats: { label: string; value: string; sub?: string }[] = [];
+  if (raceRows.length > 0 && raceSession) {
+    const [raceControl, positions, pits, weather] = await Promise.all([
+      getRaceControl(raceSession.key).catch(() => []),
+      getPositions(raceSession.key).catch(() => []),
+      getPitStops(raceSession.key).catch(() => []),
+      getWeather(raceSession.key).catch(() => []),
+    ]);
+    raceStartMs = new Date(raceSession.start).getTime();
+    movers = winnersAndLosers(raceRows);
+    moments = keyMoments(raceControl);
+
+    const fl = raceRows.find((r) => r.fastestLap);
+    const pole = raceRows.find((r) => r.grid === 1);
+    const margin = winningMargin(raceRows);
+    const lanes = pits
+      .map((p) => p.laneDuration)
+      .filter((d): d is number => d !== null && d > 0);
+    const trackTemps = weather.map((w) => w.trackTemp).filter((t) => t > 0);
+    const rained = weather.some((w) => w.rainfall);
+
+    stats = [
+      {
+        label: "WINNING MARGIN",
+        value: margin !== null ? `${margin.toFixed(3)}s` : "—",
+        sub: raceRows[1] ? `over ${raceRows[1].familyName}` : undefined,
+      },
+      {
+        label: "FASTEST LAP",
+        value: fl ? fl.familyName : "—",
+      },
+      {
+        label: "POLE CONVERTED",
+        value: pole ? `P1 → P${pole.pos}` : "—",
+        sub: pole ? pole.familyName : undefined,
+      },
+      {
+        label: "SAFETY CARS",
+        value: String(safetyCars(raceControl)),
+      },
+      {
+        label: "LEAD CHANGES",
+        value: String(leadChanges(positions)),
+      },
+      {
+        label: "PIT STOPS",
+        value: String(pits.length),
+        sub:
+          lanes.length > 0
+            ? `fastest lane ${Math.min(...lanes).toFixed(1)}s`
+            : undefined,
+      },
+      {
+        label: "HOTTEST TRACK",
+        value:
+          trackTemps.length > 0
+            ? `${Math.max(...trackTemps).toFixed(1)}°`
+            : "—",
+        sub: rained ? "rain during the race" : "dry race",
+      },
+    ];
   }
 
   const winners = isFullyFuture ? await getCircuitWinners(race.circuitId, 5) : [];
@@ -345,6 +574,59 @@ export default async function RaceDetailPage({
       </div>
 
       <div className="flex flex-col gap-5">
+        {raceRows.length > 0 && (
+          <PodiumHero rows={raceRows} raceName={race.name} headshots={headshots} />
+        )}
+
+        {movers && (movers.winners.length > 0 || movers.losers.length > 0) && (
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <Card title="WINNERS · UP THE ORDER">
+              <div className="flex flex-col gap-2">
+                {movers.winners.map((m) => (
+                  <MoverRow key={m.row.familyName} m={m} gained />
+                ))}
+              </div>
+            </Card>
+            <Card title="LOSERS · TOUGH SUNDAY">
+              <div className="flex flex-col gap-2">
+                {movers.losers.map((m) => (
+                  <MoverRow key={m.row.familyName} m={m} gained={false} />
+                ))}
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {stats.length > 0 && (
+          <Card title="BY THE NUMBERS">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {stats.map((s) => (
+                <Stat key={s.label} label={s.label} value={s.value} sub={s.sub} />
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {moments.length > 0 && (
+          <Card title="KEY MOMENTS">
+            <div className="flex flex-col gap-2.5">
+              {moments.map((m) => (
+                <div key={m.t + m.message} className="flex items-start gap-3">
+                  <MomentDot m={m} />
+                  <div className="min-w-0">
+                    <div className="text-[12.5px] leading-snug text-[#F5F3F1]/80">
+                      {m.message}
+                    </div>
+                    <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/35">
+                      {formatElapsed(m.t - raceStartMs)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {isFullyFuture && (
           <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[1.2fr_1fr]">
             <div className="flex flex-col rounded-[22px] border border-white/[0.08] bg-white/[0.025] px-7 py-6 backdrop-blur-[18px]">
@@ -407,6 +689,11 @@ export default async function RaceDetailPage({
           <ScheduleStrip sessions={futureSessions} now={now.getTime()} tz={tz} />
         )}
 
+        {cards.length > 0 && (
+          <div className="mt-1 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/40">
+            FULL CLASSIFICATIONS
+          </div>
+        )}
         {cards.map(({ session, node }) => (
           <Card
             key={session.key}
