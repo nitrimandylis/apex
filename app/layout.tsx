@@ -4,6 +4,7 @@ import "./globals.css";
 import Sidebar from "@/components/sidebar";
 import { getCalendar, getDriverStandings } from "@/lib/jolpica";
 import { nextRace, shortRaceLine } from "@/lib/format";
+import { circuitTz } from "@/lib/timezones";
 import { FavoriteProvider } from "@/lib/favorite";
 
 const outfit = Outfit({
@@ -44,7 +45,7 @@ export default async function RootLayout({
                   ? {
                       round: next.round,
                       name: next.name.replace(" Grand Prix", " GP"),
-                      detail: shortRaceLine(next),
+                      detail: shortRaceLine(next, circuitTz(next.locality)),
                     }
                   : undefined
               }

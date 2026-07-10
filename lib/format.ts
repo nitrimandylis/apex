@@ -38,13 +38,18 @@ export function pointsGap(leaderPts: number, pts: number): string {
   return `-${leaderPts - pts}`;
 }
 
-// "Spa · 19 Jul, 15:00" in the visitor's locale — used where space is tight.
-export function shortRaceLine(race: Race): string {
+// "Spa · 19 Jul, 15:00" in circuit-local time — used where space is tight.
+export function shortRaceLine(race: Race, timeZone: string): string {
   const d = new Date(race.raceStart);
-  const day = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const day = d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    timeZone,
+  });
   const time = d.toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone,
   });
   return `${race.locality} · ${day}, ${time}`;
 }

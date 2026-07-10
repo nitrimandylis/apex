@@ -15,6 +15,7 @@ import {
 } from "@/lib/jolpica";
 import { nameKey, nextRace } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
+import { circuitTz } from "@/lib/timezones";
 
 function CardLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -39,17 +40,20 @@ export default async function OverviewPage() {
   const next = nextRace(races, now);
   const outline = next ? outlineFor(next.locality) : null;
 
+  const tz = next ? circuitTz(next.locality) : "UTC";
   const raceDay = next
     ? new Date(next.raceStart).toLocaleDateString("en-GB", {
         weekday: "long",
         day: "numeric",
         month: "long",
+        timeZone: tz,
       })
     : "";
   const raceTime = next
     ? new Date(next.raceStart).toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
+        timeZone: tz,
       })
     : "";
 
@@ -90,7 +94,7 @@ export default async function OverviewPage() {
                 {next.name}
               </div>
               <div className="text-[15px] text-[#F5F3F1]/60">
-                {next.circuit} · {raceDay} · {raceTime}
+                {next.circuit} · {raceDay} · {raceTime} local
               </div>
               <Countdown targetIso={next.raceStart} />
             </div>
@@ -119,7 +123,7 @@ export default async function OverviewPage() {
 
         {/* Weekend schedule */}
         {next && (
-          <ScheduleStrip sessions={next.sessions} now={now.getTime()} />
+          <ScheduleStrip sessions={next.sessions} now={now.getTime()} tz={tz} />
         )}
 
         {/* Second row */}
