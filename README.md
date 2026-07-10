@@ -27,7 +27,7 @@ The telemetry view is the part that earns its keep. OpenF1 charges €9.90/month
 It started life as a single-file design prototype (`design/prototype.html`) and got ported 1:1 — same dark glass, same F1 red, except the numbers stopped being fiction.
 
 ```console
-nick@f1-dash:~$ bun run dev
+nick@apex:~$ bun run dev
 [✓] ready on localhost:3000. countdown to spa is live.
 [i] leclerc still leads the british gp replay. he always will.
 ```
@@ -47,8 +47,8 @@ nick@f1-dash:~$ bun run dev
 Needs [bun](https://bun.sh).
 
 ```bash
-git clone https://github.com/nitrimandylis/f1-dash.git
-cd f1-dash
+git clone https://github.com/nitrimandylis/apex.git
+cd apex
 bun install
 bun run dev
 ```
