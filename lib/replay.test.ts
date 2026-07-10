@@ -2,9 +2,11 @@ import { expect, test } from "bun:test";
 import {
   compoundAtLap,
   currentLap,
+  formatElapsed,
   formatGap,
   formatLapTime,
   indexAtTime,
+  latestAtTime,
   orderAtTime,
 } from "./replay";
 import type { Lap, PosSample, Stint } from "./openf1";
@@ -56,6 +58,21 @@ test("compoundAtLap picks the stint covering the lap", () => {
   expect(compoundAtLap(stints, 35)).toBe("M");
   expect(compoundAtLap(stints, 36)).toBe("H");
   expect(compoundAtLap(stints, 99)).toBe("—");
+});
+
+test("latestAtTime picks the newest row at or before t", () => {
+  const rows = [
+    { t: 10, v: "a" },
+    { t: 20, v: "b" },
+  ];
+  expect(latestAtTime(rows, 5)).toBeNull();
+  expect(latestAtTime(rows, 15)?.v).toBe("a");
+  expect(latestAtTime(rows, 99)?.v).toBe("b");
+});
+
+test("formatElapsed renders +m:ss", () => {
+  expect(formatElapsed(83000)).toBe("+1:23");
+  expect(formatElapsed(-5)).toBe("+0:00");
 });
 
 test("formatGap labels the leader and formats seconds", () => {

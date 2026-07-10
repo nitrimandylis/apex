@@ -72,6 +72,27 @@ export function compoundAtLap(stints: Stint[], lap: number): string {
   return stint.compound[0]; // SOFT -> S, MEDIUM -> M, ...
 }
 
+// Latest row at or before time t, for any time-stamped series
+// (weather, car location, race control...). Null before the first row.
+export function latestAtTime<T extends { t: number }>(
+  rows: T[],
+  t: number,
+): T | null {
+  const idx = indexAtTime(
+    rows.map((r) => r.t),
+    t,
+  );
+  return idx === -1 ? null : rows[idx];
+}
+
+// "+mm:ss" elapsed session clock.
+export function formatElapsed(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `+${mins}:${String(secs).padStart(2, "0")}`;
+}
+
 export function formatGap(gap: number | null): string {
   if (gap === null || gap === 0) {
     return "Leader";

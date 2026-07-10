@@ -2,28 +2,41 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import PageHeader from "@/components/page-header";
+import TrackMap from "@/components/track-map";
+import Headshot from "@/components/headshot";
 import { useFavorite } from "@/lib/favorite";
 import { colorForTeamName, TYRE_COLORS } from "@/lib/colors";
+import { outlineFor } from "@/lib/outlines";
 import {
   getCarData,
   getIntervalWindow,
   getLaps,
+  getLocationWindow,
   getPastSessions,
   getPositions,
+  getRaceControl,
   getSessionDrivers,
   getStints,
+  getTeamRadio,
+  getWeather,
   type CarSample,
   type Lap,
+  type LocationSample,
   type OF1Driver,
   type PosSample,
+  type RaceControlMsg,
+  type RadioClip,
   type Session,
   type Stint,
+  type WeatherSample,
 } from "@/lib/openf1";
 import {
   compoundAtLap,
   currentLap,
+  formatElapsed,
   formatGap,
   indexAtTime,
+  latestAtTime,
   orderAtTime,
 } from "@/lib/replay";
 
@@ -34,6 +47,9 @@ type LoadedData = {
   positions: PosSample[];
   stints: Stint[];
   laps: Lap[];
+  weather: WeatherSample[];
+  raceControl: RaceControlMsg[];
+  radio: RadioClip[];
 };
 
 function StatBox({ label, value }: { label: string; value: string }) {
@@ -86,7 +102,9 @@ export default function Replay() {
   const [paused, setPaused] = useState(false);
   const [speedIdx, setSpeedIdx] = useState(1); // default 5x
   const [gaps, setGaps] = useState<Map<number, number | null>>(new Map());
+  const [locations, setLocations] = useState<LocationSample[]>([]);
   const lastGapFetch = useRef(0);
+  const lastLocFetch = useRef(0);
 
   const session = sessions.find((s) => s.key === sessionKey) ?? null;
   const driver = drivers.find((d) => d.number === driverNumber) ?? null;
@@ -130,22 +148,31 @@ export default function Replay() {
     setPhase("loading");
     setError("");
     try {
-      const [carData, positions, stints, laps] = await Promise.all([
-        getCarData(sessionKey, driverNumber, session.start, session.end),
-        getPositions(sessionKey),
-        getStints(sessionKey),
-        getLaps(sessionKey, driverNumber),
-      ]);
+      const [carData, positions, stints, laps, weather, raceControl, radio] =
+        await Promise.all([
+          getCarData(sessionKey, driverNumber, session.start, session.end),
+          getPositions(sessionKey),
+          getStints(sessionKey),
+          getLaps(sessionKey, driverNumber),
+          getWeather(sessionKey).catch(() => []),
+          getRaceControl(sessionKey).catch(() => []),
+          getTeamRadio(sessionKey).catch(() => []),
+        ]);
       if (carData.length === 0) {
         throw new Error("no car data");
       }
       carData.sort((a, b) => a.t - b.t);
       positions.sort((a, b) => a.t - b.t);
       laps.sort((a, b) => a.t - b.t);
-      setData({ carData, positions, stints, laps });
+      weather.sort((a, b) => a.t - b.t);
+      raceControl.sort((a, b) => a.t - b.t);
+      radio.sort((a, b) => a.t - b.t);
+      setData({ carData, positions, stints, laps, weather, raceControl, radio });
       setSimTime(carData[0].t);
       setGaps(new Map());
       lastGapFetch.current = 0;
+      setLocations([]);
+      lastLocFetch.current = 0;
       setPaused(false);
       setPhase("playing");
     } catch {
@@ -187,6 +214,29 @@ export default function Replay() {
       })
       .catch(() => {}); // gaps are cosmetic; skip a failed window
   }, [simTime, phase, session, sessionKey]);
+
+  // Fetch car positions for the track-map dot in 60-second windows as the
+  // clock passes 30-second marks.
+  useEffect(() => {
+    if (phase !== "playing" || sessionKey === null || driverNumber === null) {
+      return;
+    }
+    const boundary = Math.floor(simTime / 30000);
+    if (boundary === lastLocFetch.current) {
+      return;
+    }
+    lastLocFetch.current = boundary;
+    getLocationWindow(sessionKey, driverNumber, simTime - 5000, simTime + 65000)
+      .then((rows) => {
+        setLocations((old) => {
+          const merged = [...old, ...rows];
+          merged.sort((a, b) => a.t - b.t);
+          // Drop everything older than 2 minutes of sim time.
+          return merged.filter((r) => r.t > simTime - 120000);
+        });
+      })
+      .catch(() => {}); // dot is cosmetic
+  }, [simTime, phase, sessionKey, driverNumber]);
 
   const carTimes = useMemo(
     () => (data ? data.carData.map((c) => c.t) : []),
@@ -277,6 +327,17 @@ export default function Replay() {
     100,
     ((simTime - sessionStart) / (sessionEnd - sessionStart)) * 100,
   );
+  const outline = session ? outlineFor(session.location) : null;
+  const carDot = latestAtTime(locations, simTime);
+  const weatherNow = latestAtTime(data.weather, simTime);
+  const rcFeed = data.raceControl.filter((m) => m.t <= simTime).slice(-5).reverse();
+  const radioFeed = data.radio.filter((c) => c.t <= simTime).slice(-6).reverse();
+  const flagColor = (flag: string | null) => {
+    if (flag === "YELLOW" || flag === "DOUBLE YELLOW") return "#FFD12E";
+    if (flag === "RED") return "#FF564E";
+    if (flag === "GREEN" || flag === "CLEAR") return "#43B02A";
+    return "rgba(245,243,241,0.4)";
+  };
 
   return (
     <div>
@@ -296,7 +357,15 @@ export default function Replay() {
       <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[1fr_1.1fr]">
         {/* Featured car */}
         <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[30px] py-7 backdrop-blur-[18px]">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
+            {driver && (
+              <Headshot
+                src={driver.headshot}
+                name={driver.lastName}
+                color={colorForTeamName(driver.teamName)}
+                size={36}
+              />
+            )}
             <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
               CAR {driver?.number} · {driver?.lastName.toUpperCase()}
             </div>
@@ -424,6 +493,134 @@ export default function Replay() {
                   <div className="w-[70px] text-right text-[13px] text-[#F5F3F1]/75">
                     {gap}
                   </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Broadcast row: track map + weather, race control, team radio */}
+      <div className="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.1fr_1fr_1fr]">
+        {/* Track map + weather */}
+        <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
+          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+            TRACK · {driver?.acronym}
+          </div>
+          {outline ? (
+            <div className="h-[190px]">
+              <TrackMap
+                points={outline}
+                dot={carDot ? { x: carDot.x, y: carDot.y } : null}
+              />
+            </div>
+          ) : (
+            <div className="flex h-[190px] items-center justify-center text-[13px] text-[#F5F3F1]/40">
+              No track geometry for this circuit yet
+            </div>
+          )}
+          {weatherNow && (
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-white/[0.06] pt-4">
+              {[
+                ["TRACK", `${weatherNow.trackTemp.toFixed(1)}°`],
+                ["AIR", `${weatherNow.airTemp.toFixed(1)}°`],
+                ["WIND", `${weatherNow.windSpeed.toFixed(1)} m/s`],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5 text-[11px]"
+                >
+                  <span className="tracking-[0.14em] text-[#F5F3F1]/40">
+                    {label}{" "}
+                  </span>
+                  <span className="font-semibold">{value}</span>
+                </div>
+              ))}
+              <div
+                className="rounded-lg border px-2.5 py-1.5 text-[11px]"
+                style={{
+                  borderColor: weatherNow.rainfall
+                    ? "rgba(0,144,255,0.5)"
+                    : "rgba(255,255,255,0.07)",
+                  background: weatherNow.rainfall
+                    ? "rgba(0,144,255,0.12)"
+                    : "rgba(255,255,255,0.03)",
+                }}
+              >
+                <span className="tracking-[0.14em] text-[#F5F3F1]/40">
+                  RAIN{" "}
+                </span>
+                <span className="font-semibold">
+                  {weatherNow.rainfall ? "YES" : "NO"}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Race control */}
+        <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
+          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+            RACE CONTROL
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {rcFeed.length === 0 && (
+              <div className="py-6 text-center text-[13px] text-[#F5F3F1]/40">
+                No messages yet
+              </div>
+            )}
+            {rcFeed.map((m) => (
+              <div key={m.t + m.message} className="flex items-start gap-2.5">
+                <span
+                  className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full"
+                  style={{ background: flagColor(m.flag) }}
+                />
+                <div className="min-w-0">
+                  <div className="text-[12.5px] leading-snug text-[#F5F3F1]/80">
+                    {m.message}
+                  </div>
+                  <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/35">
+                    {formatElapsed(m.t - sessionStart)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Team radio */}
+        <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
+          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+            TEAM RADIO
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {radioFeed.length === 0 && (
+              <div className="py-6 text-center text-[13px] text-[#F5F3F1]/40">
+                No radio yet
+              </div>
+            )}
+            {radioFeed.map((clip) => {
+              const d = drivers.find((x) => x.number === clip.driver);
+              return (
+                <div key={clip.url} className="flex items-center gap-2.5">
+                  <div
+                    className="h-4 w-[3px] flex-none rounded-full"
+                    style={{
+                      background: d ? colorForTeamName(d.teamName) : "#B6BABD",
+                    }}
+                  />
+                  <div className="w-11 flex-none text-[12.5px] font-semibold tracking-[0.06em]">
+                    {d?.acronym ?? `#${clip.driver}`}
+                  </div>
+                  <div className="w-12 flex-none text-[10.5px] text-[#F5F3F1]/35">
+                    {formatElapsed(clip.t - sessionStart)}
+                  </div>
+                  <audio
+                    controls
+                    preload="none"
+                    src={clip.url}
+                    className="h-7 min-w-0 flex-1"
+                  />
                 </div>
               );
             })}

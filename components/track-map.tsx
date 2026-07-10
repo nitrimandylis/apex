@@ -1,11 +1,15 @@
 // Draws a circuit outline from one lap of real car position data.
 // `mini` drops the glow layer for small thumbnail use.
+// `dot` is a live car position in the same raw telemetry coordinates —
+// it gets the identical normalization as the outline.
 export default function TrackMap({
   points,
   mini = false,
+  dot = null,
 }: {
   points: { x: number; y: number }[];
   mini?: boolean;
+  dot?: { x: number; y: number } | null;
 }) {
   const xs = points.map((p) => p.x);
   const ys = points.map((p) => p.y);
@@ -20,14 +24,21 @@ export default function TrackMap({
   const offsetX = (100 - (maxX - minX) * scale) / 2;
   const offsetY = (100 - (maxY - minY) * scale) / 2;
 
+  function toSvg(p: { x: number; y: number }) {
+    const x = offsetX + (p.x - minX) * scale;
+    // Flip y: telemetry y grows north, SVG y grows down.
+    const y = 100 - (offsetY + (p.y - minY) * scale);
+    return { x, y };
+  }
+
   const path = points
     .map((p) => {
-      const x = offsetX + (p.x - minX) * scale;
-      // Flip y: telemetry y grows north, SVG y grows down.
-      const y = 100 - (offsetY + (p.y - minY) * scale);
+      const { x, y } = toSvg(p);
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(" ");
+
+  const dotSvg = dot ? toSvg(dot) : null;
 
   return (
     <svg viewBox="0 0 100 100" className="h-full w-full">
@@ -52,6 +63,19 @@ export default function TrackMap({
         strokeLinejoin="round"
         strokeLinecap="round"
       />
+      {dotSvg && (
+        <>
+          <circle
+            cx={dotSvg.x}
+            cy={dotSvg.y}
+            r="5"
+            fill="#E10600"
+            opacity="0.35"
+            style={{ filter: "blur(2px)" }}
+          />
+          <circle cx={dotSvg.x} cy={dotSvg.y} r="2.6" fill="#FF2A1F" />
+        </>
+      )}
     </svg>
   );
 }
