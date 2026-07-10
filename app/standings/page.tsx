@@ -8,7 +8,7 @@ import {
   getDriverStandings,
   getSeasonPoints,
 } from "@/lib/jolpica";
-import { pointsGap } from "@/lib/format";
+import { nameKey, pointsGap } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
 
 export default async function StandingsPage() {
@@ -54,7 +54,7 @@ export default async function StandingsPage() {
                 gap={pointsGap(leaderPts, d.points)}
                 pts={d.points}
                 zebra={i % 2 === 0}
-                headshot={headshots[d.familyName.toLowerCase()] ?? ""}
+                headshot={headshots[nameKey(d.familyName)] ?? ""}
               />
             ))}
           </div>

@@ -30,6 +30,7 @@ import {
   type Stint,
   type WeatherSample,
 } from "@/lib/openf1";
+import { nameKey } from "@/lib/format";
 import {
   compoundAtLap,
   currentLap,
@@ -129,7 +130,7 @@ export default function Replay() {
       .then((list) => {
         setDrivers(list);
         const fav = list.find(
-          (d) => d.lastName.toLowerCase() === favorite.toLowerCase(),
+          (d) => nameKey(d.lastName) === nameKey(favorite),
         );
         setDriverNumber((fav ?? list[0])?.number ?? null);
       })
@@ -455,8 +456,7 @@ export default function Replay() {
                 ? formatGap(i === 0 ? null : (gaps.get(number) ?? null))
                 : "—";
               const isFav =
-                favorite !== "" &&
-                d.lastName.toLowerCase() === favorite.toLowerCase();
+                favorite !== "" && nameKey(d.lastName) === nameKey(favorite);
               return (
                 <div
                   key={number}

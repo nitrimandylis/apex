@@ -13,7 +13,7 @@ import {
   getLastRace,
   getQualifying,
 } from "@/lib/jolpica";
-import { nextRace } from "@/lib/format";
+import { nameKey, nextRace } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
 
 function CardLabel({ children }: { children: React.ReactNode }) {
@@ -219,7 +219,7 @@ export default async function OverviewPage() {
                     {d.pos}
                   </div>
                   <Headshot
-                    src={headshots[d.familyName.toLowerCase()] ?? ""}
+                    src={headshots[nameKey(d.familyName)] ?? ""}
                     name={d.familyName}
                     color={TEAM_COLORS[d.constructorId] ?? "#B6BABD"}
                     size={24}

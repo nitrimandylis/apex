@@ -1,5 +1,7 @@
 // Helpers for the OpenF1 API. Historical data is free and needs no key.
 
+import { nameKey } from "./format";
+
 const BASE = "https://api.openf1.org/v1";
 
 // Raw row shapes as OpenF1 returns them (only the fields we read).
@@ -339,7 +341,7 @@ export async function getHeadshots(): Promise<Record<string, string>> {
     const map: Record<string, string> = {};
     for (const d of drivers) {
       if (d.headshot_url) {
-        map[d.last_name.toLowerCase()] = d.headshot_url;
+        map[nameKey(d.last_name)] = d.headshot_url;
       }
     }
     return map;

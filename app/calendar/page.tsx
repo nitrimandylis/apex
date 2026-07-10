@@ -3,7 +3,7 @@ import TrackMap from "@/components/track-map";
 import Headshot from "@/components/headshot";
 import { getCalendar, getSeasonWinners } from "@/lib/jolpica";
 import { getHeadshots } from "@/lib/openf1";
-import { nextRace } from "@/lib/format";
+import { nameKey, nextRace } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
 import { flagFor } from "@/lib/flags";
 import { outlineFor } from "@/lib/outlines";
@@ -101,7 +101,7 @@ export default async function CalendarPage() {
               <div className="flex items-center justify-end gap-[9px]">
                 {isDone && winner && (
                   <Headshot
-                    src={headshots[winner.familyName.toLowerCase()] ?? ""}
+                    src={headshots[nameKey(winner.familyName)] ?? ""}
                     name={winner.familyName}
                     color={TEAM_COLORS[winner.constructorId] ?? "#B6BABD"}
                     size={20}

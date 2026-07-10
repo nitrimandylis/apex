@@ -22,6 +22,15 @@ export function countdownParts(
   };
 }
 
+// Jolpica writes "Hülkenberg"/"Pérez", OpenF1 writes "Hulkenberg"/"Perez".
+// Strip diacritics and lowercase so names match across the two APIs.
+export function nameKey(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export function pointsGap(leaderPts: number, pts: number): string {
   if (pts === leaderPts) {
     return "—";
