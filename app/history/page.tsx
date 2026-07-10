@@ -1,6 +1,10 @@
 import PageHeader from "@/components/page-header";
 import FavRow from "@/components/fav-row";
-import { getDriverStandings, getSeasonWinners } from "@/lib/jolpica";
+import {
+  getCurrentDrivers,
+  getDriverStandings,
+  getSeasonWinners,
+} from "@/lib/jolpica";
 import { TEAM_COLORS } from "@/lib/colors";
 import { nameKey } from "@/lib/format";
 import history from "@/lib/history.json";
@@ -71,9 +75,10 @@ function CountRow({
 }
 
 export default async function HistoryPage() {
-  const [{ round, standings }, seasonWinners] = await Promise.all([
+  const [{ round, standings }, seasonWinners, allDrivers] = await Promise.all([
     getDriverStandings(),
     getSeasonWinners().catch(() => ({})),
+    getCurrentDrivers().catch(() => []),
   ]);
 
   // ---- this season ----
@@ -132,6 +137,90 @@ export default async function HistoryPage() {
   allTime.sort((a, b) => b.wins - a.wins);
   const topWins = allTime.slice(0, 12);
   const maxWins = topWins[0]?.wins ?? 1;
+
+  // ---- the current grid: records, facts, tidbits ----
+  // Grid members = drivers who appear in the standings (filters substitutes).
+  const gridNames = new Set(standings.map((d) => nameKey(d.familyName)));
+  const grid = allDrivers.filter((d) => gridNames.has(nameKey(d.familyName)));
+
+  const now = Date.now();
+  function ageOf(dob: string): number {
+    return Math.floor((now - new Date(dob).getTime()) / (365.25 * 86400000));
+  }
+  const byAge = [...grid].sort(
+    (a, b) => new Date(b.dateOfBirth).getTime() - new Date(a.dateOfBirth).getTime(),
+  );
+  const youngest = byAge[0];
+  const oldest = byAge[byAge.length - 1];
+
+  // ponytail: archive joins use family names — safe on the 2026 grid (no
+  // surname collides with a different past driver's), revisit if a
+  // Schumacher-style namesake ever joins.
+  const gridWins = standings
+    .map((d) => {
+      const career = allTime.find(
+        (w) => nameKey(w.familyName) === nameKey(d.familyName),
+      );
+      const rank = career ? allTime.indexOf(career) + 1 : null;
+      return {
+        familyName: d.familyName,
+        name: d.name,
+        constructorId: d.constructorId,
+        wins: career?.wins ?? 0,
+        rank,
+      };
+    })
+    .filter((d) => d.wins > 0)
+    .sort((a, b) => b.wins - a.wins);
+
+  const gridTitles = standings
+    .map((d) => {
+      const titles = history.champions.filter(
+        (c) => nameKey(c.familyName) === nameKey(d.familyName),
+      );
+      return { familyName: d.familyName, count: titles.length };
+    })
+    .filter((d) => d.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  const combinedWins = gridWins.reduce((sum, d) => sum + d.wins, 0);
+  const combinedTitles = gridTitles.reduce((sum, d) => sum + d.count, 0);
+  const nationalities = new Set(grid.map((d) => d.nationality)).size;
+
+  const gridFacts: { label: string; value: string; sub?: string }[] = [
+    youngest && {
+      label: "YOUNGEST",
+      value: `${ageOf(youngest.dateOfBirth)}`,
+      sub: youngest.fullName,
+    },
+    oldest && {
+      label: "OLDEST",
+      value: `${ageOf(oldest.dateOfBirth)}`,
+      sub: oldest.fullName,
+    },
+    {
+      label: "WORLD CHAMPIONS",
+      value: String(gridTitles.length),
+      sub: gridTitles.map((t) => `${t.familyName} ${t.count}`).join(" · "),
+    },
+    {
+      label: "COMBINED TITLES",
+      value: String(combinedTitles),
+    },
+    {
+      label: "RACE WINNERS",
+      value: `${gridWins.length} of ${standings.length}`,
+    },
+    {
+      label: "COMBINED WINS",
+      value: String(combinedWins),
+      sub: "careers incl. 2026",
+    },
+    {
+      label: "NATIONALITIES",
+      value: String(nationalities),
+    },
+  ].filter(Boolean) as { label: string; value: string; sub?: string }[];
 
   // ---- full champions roll, three columns reading down ----
   const champs = history.champions; // newest first
@@ -195,6 +284,52 @@ export default async function HistoryPage() {
                 max={mostTeamTitles[0].count}
                 color={TEAM_COLORS[t.constructorId] ?? "#B6BABD"}
               />
+            ))}
+          </div>
+        </Card>
+
+        <Card title="THE 2026 GRID · FACTS" wide>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+            {gridFacts.map((f) => (
+              <div
+                key={f.label}
+                className="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3.5"
+              >
+                <div className="text-[10.5px] tracking-[0.18em] text-[#F5F3F1]/45">
+                  {f.label}
+                </div>
+                <div className="mt-1 text-[20px] leading-tight font-bold">
+                  {f.value}
+                </div>
+                {f.sub && (
+                  <div className="mt-0.5 text-[11px] leading-snug text-[#F5F3F1]/45">
+                    {f.sub}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card title="CAREER WINS · CURRENT GRID" wide>
+          <div className="grid grid-cols-1 gap-x-10 gap-y-2.5 lg:grid-cols-2">
+            {[
+              gridWins.slice(0, Math.ceil(gridWins.length / 2)),
+              gridWins.slice(Math.ceil(gridWins.length / 2)),
+            ].map((half, col) => (
+              <div key={col} className="flex flex-col gap-2.5">
+                {half.map((d) => (
+                  <CountRow
+                    key={d.familyName}
+                    name={d.name}
+                    familyName={d.familyName}
+                    count={d.wins}
+                    max={gridWins[0].wins}
+                    color={TEAM_COLORS[d.constructorId] ?? "#B6BABD"}
+                    detail={d.rank ? `#${d.rank} all-time` : undefined}
+                  />
+                ))}
+              </div>
             ))}
           </div>
         </Card>

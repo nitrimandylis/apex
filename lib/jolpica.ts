@@ -462,3 +462,30 @@ export async function getCircuitWinners(
     return [];
   }
 }
+
+export type CurrentDriver = {
+  driverId: string;
+  familyName: string;
+  fullName: string;
+  dateOfBirth: string; // YYYY-MM-DD
+  nationality: string;
+};
+
+export async function getCurrentDrivers(): Promise<CurrentDriver[]> {
+  type RawDrv = {
+    driverId: string;
+    givenName: string;
+    familyName: string;
+    dateOfBirth: string;
+    nationality: string;
+  };
+  const data = await getJson("/current/drivers.json?limit=40", WEEK);
+  const rows: RawDrv[] = data.MRData.DriverTable.Drivers;
+  return rows.map((d) => ({
+    driverId: d.driverId,
+    familyName: d.familyName,
+    fullName: `${d.givenName} ${d.familyName}`,
+    dateOfBirth: d.dateOfBirth,
+    nationality: d.nationality,
+  }));
+}
