@@ -8,17 +8,14 @@ export default function Logo({ size = 22 }: { size?: number }) {
       viewBox="0 0 64 64"
       style={{ filter: "drop-shadow(0 0 10px rgba(225,6,0,0.55))" }}
     >
-      <defs>
-        <linearGradient id="apex-line" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0" stopColor="#B50500" />
-          <stop offset="1" stopColor="#FF2A1F" />
-        </linearGradient>
-      </defs>
-      {/* racing line: in from the bottom, clip the corner, out to the right */}
+      {/* racing line: in from the bottom, clip the corner, out to the right.
+          Solid red on purpose — a gradient def would need a unique id per
+          instance (this renders twice, once inside a display:none top bar,
+          and browsers resolve url(#id) to the first, unpaintable one). */}
       <path
         d="M 16 58 L 16 36 Q 16 16 36 16 L 58 16"
         fill="none"
-        stroke="url(#apex-line)"
+        stroke="#E10600"
         strokeWidth="11"
         strokeLinecap="round"
       />
