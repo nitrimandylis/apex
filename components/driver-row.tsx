@@ -1,6 +1,7 @@
 "use client";
 
 import { useFavorite } from "@/lib/favorite";
+import Headshot from "@/components/headshot";
 
 // One row of the drivers championship table. Client component so it can
 // highlight itself when it matches the locally stored favorite driver.
@@ -13,6 +14,7 @@ export default function DriverRow({
   gap,
   pts,
   zebra,
+  headshot = "",
 }: {
   pos: number;
   name: string;
@@ -22,6 +24,7 @@ export default function DriverRow({
   gap: string;
   pts: number;
   zebra: boolean;
+  headshot?: string;
 }) {
   const { favorite } = useFavorite();
   const isFav = favorite !== "" && favorite === familyName;
@@ -39,6 +42,7 @@ export default function DriverRow({
       }}
     >
       <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">{pos}</div>
+      <Headshot src={headshot} name={familyName} color={color} size={28} />
       <div
         className="h-[18px] w-[3px] rounded-full"
         style={{ background: color }}

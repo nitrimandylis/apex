@@ -1,6 +1,13 @@
 import PageHeader from "@/components/page-header";
 import DriverRow from "@/components/driver-row";
-import { getConstructorStandings, getDriverStandings } from "@/lib/jolpica";
+import PointsChart from "@/components/points-chart";
+import { buildProgression } from "@/lib/progression";
+import { getHeadshots } from "@/lib/openf1";
+import {
+  getConstructorStandings,
+  getDriverStandings,
+  getSeasonPoints,
+} from "@/lib/jolpica";
 import { pointsGap } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
 
@@ -9,6 +16,10 @@ export default async function StandingsPage() {
     getDriverStandings(),
     getConstructorStandings(),
   ]);
+  const seasonPoints = await getSeasonPoints().catch(() => []);
+  const headshots = await getHeadshots();
+  const progression =
+    seasonPoints.length > 0 ? buildProgression(seasonPoints, 5) : null;
   const leaderPts = standings[0].points;
   const topTeamPts = constructors[0].points;
 
@@ -18,6 +29,14 @@ export default async function StandingsPage() {
         title="Championship standings"
         sub={`${round} of 22 rounds complete`}
       />
+      {progression && (
+        <div className="mb-5 rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
+          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+            TITLE FIGHT · POINTS BY ROUND
+          </div>
+          <PointsChart rounds={progression.rounds} lines={progression.lines} />
+        </div>
+      )}
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
         <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
           <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
@@ -35,6 +54,7 @@ export default async function StandingsPage() {
                 gap={pointsGap(leaderPts, d.points)}
                 pts={d.points}
                 zebra={i % 2 === 0}
+                headshot={headshots[d.familyName.toLowerCase()] ?? ""}
               />
             ))}
           </div>
