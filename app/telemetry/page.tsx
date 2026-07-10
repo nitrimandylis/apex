@@ -1,9 +1,5 @@
-import PageHeader from "@/components/page-header";
+import Replay from "@/components/replay";
 
 export default function TelemetryPage() {
-  return (
-    <div>
-      <PageHeader title="Telemetry" />
-    </div>
-  );
+  return <Replay />;
 }

@@ -149,10 +149,11 @@ async function getJson(path: string) {
 // Every session already run this season (plus last season as a fallback),
 // newest first.
 export async function getPastSessions(): Promise<Session[]> {
+  // Data turns free/historical 30 minutes after a session ends, so only
+  // offer sessions past that margin.
+  const cutoff = Date.now() - 30 * 60 * 1000;
   let sessions: any[] = await getJson("/sessions?year=2026");
-  sessions = sessions.filter(
-    (s) => new Date(s.date_end).getTime() < Date.now(),
-  );
+  sessions = sessions.filter((s) => new Date(s.date_end).getTime() < cutoff);
   if (sessions.length === 0) {
     sessions = await getJson("/sessions?year=2025");
   }
@@ -182,9 +183,14 @@ export async function getSessionDrivers(key: number): Promise<OF1Driver[]> {
 export async function getCarData(
   key: number,
   driver: number,
+  fromIso: string,
+  toIso: string,
 ): Promise<CarSample[]> {
+  // Bounded to the session window: OpenF1 sometimes stores stray samples
+  // from the day before, which would break the replay clock.
   const rows = await getJson(
-    `/car_data?session_key=${key}&driver_number=${driver}`,
+    `/car_data?session_key=${key}&driver_number=${driver}` +
+      `&date%3E${fromIso}&date%3C${toIso}`,
   );
   return rows.map((r: any) => ({
     t: new Date(r.date).getTime(),
@@ -233,9 +239,15 @@ export async function getIntervalWindow(
 ): Promise<IntervalSample[]> {
   const from = new Date(fromMs).toISOString();
   const to = new Date(toMs).toISOString();
-  const rows = await getJson(
-    `/intervals?session_key=${key}&date%3E${from}&date%3C${to}`,
-  );
+  let rows: any[];
+  try {
+    rows = await getJson(
+      `/intervals?session_key=${key}&date%3E${from}&date%3C${to}`,
+    );
+  } catch {
+    // OpenF1 answers 404 for an empty window — treat as no data.
+    return [];
+  }
   return rows.map((r: any) => ({
     t: new Date(r.date).getTime(),
     driver: r.driver_number,
