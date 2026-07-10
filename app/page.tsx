@@ -3,11 +3,15 @@ import PageHeader from "@/components/page-header";
 import Countdown from "@/components/countdown";
 import TrackMap from "@/components/track-map";
 import { outlineFor } from "@/lib/outlines";
+import Headshot from "@/components/headshot";
+import ScheduleStrip from "@/components/schedule-strip";
+import { getHeadshots } from "@/lib/openf1";
 import {
   getCalendar,
   getConstructorStandings,
   getDriverStandings,
   getLastRace,
+  getQualifying,
 } from "@/lib/jolpica";
 import { nextRace } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
@@ -28,6 +32,8 @@ export default async function OverviewPage() {
       getConstructorStandings(),
       getLastRace(),
     ]);
+  const quali = await getQualifying().catch(() => null);
+  const headshots = await getHeadshots();
 
   const now = new Date();
   const next = nextRace(races, now);
@@ -111,6 +117,11 @@ export default async function OverviewPage() {
           </div>
         )}
 
+        {/* Weekend schedule */}
+        {next && (
+          <ScheduleStrip sessions={next.sessions} now={now.getTime()} />
+        )}
+
         {/* Second row */}
         <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[1.15fr_1fr_1fr]">
           {/* Telemetry preview */}
@@ -182,6 +193,11 @@ export default async function OverviewPage() {
                 </div>
               ))}
             </div>
+            {quali && quali.results.length > 0 && (
+              <div className="mt-4 border-t border-white/[0.06] pt-3 text-xs text-[#F5F3F1]/45">
+                Pole: {quali.results[0].familyName} · {quali.results[0].time}
+              </div>
+            )}
           </div>
 
           {/* Championship snapshot */}
@@ -202,11 +218,11 @@ export default async function OverviewPage() {
                   <div className="w-[22px] text-[13px] font-bold text-[#F5F3F1]/45">
                     {d.pos}
                   </div>
-                  <div
-                    className="h-4 w-[3px] rounded-full"
-                    style={{
-                      background: TEAM_COLORS[d.constructorId] ?? "#B6BABD",
-                    }}
+                  <Headshot
+                    src={headshots[d.familyName.toLowerCase()] ?? ""}
+                    name={d.familyName}
+                    color={TEAM_COLORS[d.constructorId] ?? "#B6BABD"}
+                    size={24}
                   />
                   <div className="text-[14.5px] font-medium">
                     {d.familyName}
