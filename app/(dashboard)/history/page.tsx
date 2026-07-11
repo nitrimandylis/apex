@@ -9,6 +9,8 @@ import { TEAM_COLORS } from "@/lib/colors";
 import { nameKey } from "@/lib/format";
 import history from "@/lib/history.json";
 
+export const metadata = { title: "History · APEX" };
+
 // The archive (lib/history.json) covers 1950 through last season — it's a
 // committed artifact from scripts/build-history.ts. The current season is
 // merged in at runtime.

@@ -68,14 +68,14 @@ export default function ScheduleStrip({
               style={isNext ? { color: "#FF564E" } : undefined}
             >
               {fmt(s.start, tz)}
-              <span className="ml-1 text-[10px] font-normal text-[#F5F3F1]/35">
+              <span className="ml-1 text-[10px] font-normal text-[#F5F3F1]/50">
                 circuit
               </span>
             </div>
             {showLocal && (
               <div className="mt-0.5 text-[12px] text-[#F5F3F1]/50">
                 {fmt(s.start, localTz)}
-                <span className="ml-1 text-[10px] text-[#F5F3F1]/35">
+                <span className="ml-1 text-[10px] text-[#F5F3F1]/50">
                 local
               </span>
               </div>

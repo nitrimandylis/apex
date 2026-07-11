@@ -11,6 +11,8 @@ import {
 import { nameKey, pointsGap } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
 
+export const metadata = { title: "Standings · APEX" };
+
 export default async function StandingsPage() {
   const [{ round, standings }, constructors] = await Promise.all([
     getDriverStandings(),

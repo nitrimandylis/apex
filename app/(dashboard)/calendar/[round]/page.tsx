@@ -42,6 +42,21 @@ import { flagFor } from "@/lib/flags";
 import { outlineFor } from "@/lib/outlines";
 import { circuitTz } from "@/lib/timezones";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ round: string }>;
+}) {
+  const { round } = await params;
+  try {
+    const races = await getCalendar();
+    const race = races.find((r) => r.round === Number(round));
+    return { title: race ? `${race.name} · APEX` : "Race · APEX" };
+  } catch {
+    return { title: "Race · APEX" };
+  }
+}
+
 // Rendered on demand, not at build: prerendering 22 rounds at once fires
 // ~150 OpenF1 requests in parallel and bakes 429-empty tables into the
 // static HTML. On demand, each round's fetches are ISR-cached individually.
@@ -82,7 +97,7 @@ function GridDelta({ grid, pos }: { grid: number; pos: number }) {
   }
   const delta = grid - pos;
   if (delta === 0) {
-    return <span className="text-[11px] text-[#F5F3F1]/35">—</span>;
+    return <span className="text-[11px] text-[#F5F3F1]/50">—</span>;
   }
   return (
     <span
@@ -307,7 +322,7 @@ function QualiTable({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3 px-3 text-[10px] tracking-[0.14em] text-[#F5F3F1]/35">
+      <div className="flex items-center gap-3 px-3 text-[10px] tracking-[0.14em] text-[#F5F3F1]/50">
         <div className="w-6" />
         <div className="w-[26px]" />
         <div className="w-[3px]" />
@@ -619,7 +634,7 @@ export default async function RaceDetailPage({
                     <div className="text-[12.5px] leading-snug text-[#F5F3F1]/80">
                       {m.message}
                     </div>
-                    <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/35">
+                    <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/50">
                       {formatElapsed(m.t - raceStartMs)}
                     </div>
                   </div>

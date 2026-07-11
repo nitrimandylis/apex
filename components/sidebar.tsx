@@ -64,7 +64,7 @@ export default function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-lg px-3 py-1.5 text-[13px] font-medium whitespace-nowrap ${
+              className={`rounded-lg px-3.5 py-2.5 text-[13px] font-medium whitespace-nowrap ${
                 pathname === item.href
                   ? "bg-white/[0.08] text-[#F5F3F1]"
                   : "text-[#F5F3F1]/58"

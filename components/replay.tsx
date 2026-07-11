@@ -648,7 +648,7 @@ export default function Replay() {
                   <div className="text-[12.5px] leading-snug text-[#F5F3F1]/80">
                     {m.message}
                   </div>
-                  <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/35">
+                  <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/50">
                     {formatElapsed(m.t - sessionStart)}
                   </div>
                 </div>
@@ -681,7 +681,7 @@ export default function Replay() {
                   <div className="w-11 flex-none text-[12.5px] font-semibold tracking-[0.06em]">
                     {d?.acronym ?? `#${clip.driver}`}
                   </div>
-                  <div className="w-12 flex-none text-[10.5px] text-[#F5F3F1]/35">
+                  <div className="w-12 flex-none text-[10.5px] text-[#F5F3F1]/50">
                     {formatElapsed(clip.t - sessionStart)}
                   </div>
                   <audio

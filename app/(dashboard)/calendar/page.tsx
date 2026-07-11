@@ -9,6 +9,8 @@ import { TEAM_COLORS } from "@/lib/colors";
 import { flagFor } from "@/lib/flags";
 import { outlineFor } from "@/lib/outlines";
 
+export const metadata = { title: "Calendar · APEX" };
+
 function dateRange(race: { sessions: { start: string }[]; date: string }) {
   // Weekend span like "17–19 Jul" from first session to race day.
   const first = new Date(race.sessions[0]?.start ?? race.date);

@@ -18,6 +18,8 @@ import { nameKey, nextRace } from "@/lib/format";
 import { TEAM_COLORS } from "@/lib/colors";
 import { circuitTz } from "@/lib/timezones";
 
+export const metadata = { title: "Overview · APEX" };
+
 function CardLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">

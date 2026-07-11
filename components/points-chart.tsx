@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ProgressionLine, SeasonEvent } from "@/lib/progression";
 import { TEAM_COLORS } from "@/lib/colors";
 
@@ -26,6 +26,36 @@ export default function PointsChart({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const pickerButtonRef = useRef<HTMLButtonElement>(null);
+
+  // The picker dismisses like any popover should: Escape or a click outside.
+  useEffect(() => {
+    if (!pickerOpen) {
+      return;
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setPickerOpen(false);
+        pickerButtonRef.current?.focus();
+      }
+    }
+    function onPointer(e: PointerEvent) {
+      const target = e.target as Node;
+      if (
+        !pickerRef.current?.contains(target) &&
+        !pickerButtonRef.current?.contains(target)
+      ) {
+        setPickerOpen(false);
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [pickerOpen]);
 
   const shown = lines.filter((l) => selected.has(l.driverId));
   const maxPoints = Math.max(
@@ -85,7 +115,10 @@ export default function PointsChart({
       {/* Toolbar */}
       <div className="mb-3 flex items-center gap-2">
         <button
+          ref={pickerButtonRef}
           onClick={() => setPickerOpen((o) => !o)}
+          aria-expanded={pickerOpen}
+          aria-haspopup="listbox"
           className="cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-1.5 text-[12.5px] font-semibold hover:bg-white/[0.09]"
         >
           Drivers ({selected.size}) {pickerOpen ? "▴" : "▾"}
@@ -114,7 +147,12 @@ export default function PointsChart({
 
       {/* Custom driver picker */}
       {pickerOpen && (
-        <div className="pop-in absolute top-11 left-0 z-20 max-h-[320px] w-[280px] overflow-y-auto rounded-2xl border border-white/[0.1] bg-[#101014] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
+        <div
+          ref={pickerRef}
+          role="listbox"
+          aria-multiselectable
+          className="pop-in absolute top-11 left-0 z-20 max-h-[320px] w-[280px] overflow-y-auto rounded-2xl border border-white/[0.1] bg-[#101014] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.6)]"
+        >
           {lines.map((l) => {
             const color = TEAM_COLORS[l.constructorId] ?? "#B6BABD";
             const on = selected.has(l.driverId);
@@ -122,6 +160,8 @@ export default function PointsChart({
               <button
                 key={l.driverId}
                 onClick={() => toggle(l.driverId)}
+                role="option"
+                aria-selected={on}
                 className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left hover:bg-white/[0.05]"
               >
                 <span
@@ -175,7 +215,7 @@ export default function PointsChart({
               y={y(pts) + 3}
               textAnchor="end"
               fontSize="9"
-              fill="rgba(245,243,241,0.35)"
+              fill="rgba(245,243,241,0.5)"
             >
               {pts}
             </text>

@@ -71,7 +71,7 @@ export default function TopNav({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-[13.5px] font-medium whitespace-nowrap hover:bg-white/[0.06] hover:text-[#F5F3F1] ${
+                className={`flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-[13.5px] font-medium whitespace-nowrap hover:bg-white/[0.06] hover:text-[#F5F3F1] ${
                   active ? "bg-white/[0.08] text-[#F5F3F1]" : "text-[#F5F3F1]/58"
                 }`}
               >
