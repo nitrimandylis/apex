@@ -10,7 +10,7 @@
 
 ### `REAL F1 DATA // NONE OF IT INVENTED`
 
-*a 2026-season Formula 1 dashboard that replays real telemetry instead of faking it*
+*a 2026-season Formula 1 dashboard that replays real telemetry instead of faking it — [live at apex-livid-kappa.vercel.app](https://apex-livid-kappa.vercel.app)*
 
 ![next.js](https://img.shields.io/badge/next.js-16-E10600?style=flat-square&labelColor=111111) ![runtime](https://img.shields.io/badge/runtime-bun-F5F3F1?style=flat-square&labelColor=111111) ![data](https://img.shields.io/badge/data-jolpica_+_openf1-E10600?style=flat-square&labelColor=111111) ![api keys](https://img.shields.io/badge/api_keys-0-F5F3F1?style=flat-square&labelColor=111111) ![telemetry](https://img.shields.io/badge/fake_telemetry-0_(we_checked)-E10600?style=flat-square&labelColor=111111)
 
