@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/logo";
+import GitHubMark from "@/components/github-mark";
 import { getCalendar, getDriverStandings } from "@/lib/jolpica";
 import { nextRace } from "@/lib/format";
 import { outlineFor } from "@/lib/outlines";
@@ -68,9 +69,10 @@ export default async function LandingPage() {
         <div className="flex-1" />
         <a
           href={GITHUB}
-          className="text-[13px] font-bold tracking-[0.12em] hover:text-[--color-accent-bright]"
+          className="flex items-center gap-1.5 text-[13px] font-bold tracking-[0.12em] hover:text-[--color-accent-bright]"
           style={{ color: "var(--color-ink-dim)" }}
         >
+          <GitHubMark size={15} />
           GITHUB ↗
         </a>
         <Link
@@ -124,19 +126,19 @@ export default async function LandingPage() {
 
         <div className="relative" style={{ transform: "rotate(-2deg)" }}>
           <h1
-            className="text-[15vw] leading-[0.88] font-extrabold tracking-[-0.02em] uppercase lg:text-[128px]"
+            className="text-[11vw] leading-[0.92] font-extrabold tracking-[-0.02em] uppercase lg:text-[110px]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            <span className="sweep-in block">Real</span>
+            <span className="sweep-in block">Every race.</span>
             <span className="sweep-in delay-1 block">
               <span
                 className="px-3"
                 style={{ background: "var(--color-accent)" }}
               >
-                data.
+                Every number.
               </span>
             </span>
-            <span className="sweep-in delay-2 block">Or nothing.</span>
+            <span className="sweep-in delay-2 block">Every year.</span>
           </h1>
         </div>
         <p
@@ -226,24 +228,38 @@ export default async function LandingPage() {
 
       {/* The door */}
       <section className="px-6 py-24 lg:px-12 lg:py-32">
-        <Link
-          href="/overview"
-          className="block px-4 py-10 text-center text-[7vw] leading-none font-extrabold tracking-[-0.01em] uppercase whitespace-nowrap lg:py-14 lg:text-[64px]"
-          style={{
-            background: "var(--color-accent)",
-            color: "var(--color-ink)",
-            fontFamily: "var(--font-display)",
-          }}
+        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+          <Link
+            href="/overview"
+            className="group flex items-center justify-between gap-4 px-6 py-9 transition-[filter] duration-200 hover:brightness-110 lg:px-10"
+            style={{
+              background: "var(--color-accent)",
+              color: "var(--color-ink)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            <span className="text-[6vw] leading-none font-extrabold tracking-[-0.01em] uppercase whitespace-nowrap lg:text-[52px]">
+              Enter the dashboard
+            </span>
+            <span className="text-[6vw] leading-none font-extrabold transition-transform duration-200 group-hover:translate-x-2 lg:text-[52px]">
+              →
+            </span>
+          </Link>
+          <a
+            href={GITHUB}
+            className="gh-block flex items-center justify-center gap-3 px-6 py-9 text-[22px] font-extrabold tracking-[0.04em] uppercase transition-colors duration-200 lg:text-[26px]"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            <GitHubMark size={26} />
+            Source
+          </a>
+        </div>
+        <p
+          className="mt-5 text-[13px]"
+          style={{ color: "var(--color-ink-faint)" }}
         >
-          Enter the dashboard →
-        </Link>
-        <a
-          href={GITHUB}
-          className="mt-6 block text-center text-[15px] font-medium hover:text-[--color-accent-bright]"
-          style={{ color: "var(--color-ink-dim)" }}
-        >
-          Or read the source — github.com/nitrimandylis/apex · MIT
-        </a>
+          github.com/nitrimandylis/apex · MIT
+        </p>
       </section>
 
       {/* Statement footer */}
@@ -267,7 +283,11 @@ export default async function LandingPage() {
           className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-bold tracking-[0.14em]"
           style={{ color: "var(--color-ink-dim)" }}
         >
-          <a href={GITHUB} className="hover:text-[--color-accent-bright]">
+          <a
+            href={GITHUB}
+            className="flex items-center gap-1.5 hover:text-[--color-accent-bright]"
+          >
+            <GitHubMark size={14} />
             GITHUB
           </a>
           <Link href="/overview" className="hover:text-[--color-accent-bright]">
