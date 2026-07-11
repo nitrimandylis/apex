@@ -66,7 +66,7 @@ function CountRow({
       </div>
       <div className="mt-1.5 ml-[15px] h-1 overflow-hidden rounded-full bg-white/[0.06]">
         <div
-          className="h-full rounded-full"
+          className="bar-in h-full rounded-full"
           style={{ background: color, width: `${Math.round((count / max) * 100)}%` }}
         />
       </div>

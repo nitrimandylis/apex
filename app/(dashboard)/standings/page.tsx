@@ -99,7 +99,7 @@ export default async function StandingsPage() {
                       </div>
                       <div className="mt-2 ml-9 h-1 overflow-hidden rounded-full bg-white/[0.06]">
                         <div
-                          className="h-full rounded-full"
+                          className="bar-in h-full rounded-full"
                           style={{ background: color, width: `${barWidth}%` }}
                         />
                       </div>

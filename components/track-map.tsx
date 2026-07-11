@@ -6,10 +6,12 @@ export default function TrackMap({
   points,
   mini = false,
   dot = null,
+  draw = false,
 }: {
   points: { x: number; y: number }[];
   mini?: boolean;
   dot?: { x: number; y: number } | null;
+  draw?: boolean; // animate the outline drawing itself in
 }) {
   const xs = points.map((p) => p.x);
   const ys = points.map((p) => p.y);
@@ -51,6 +53,7 @@ export default function TrackMap({
           strokeWidth={5}
           strokeLinejoin="round"
           strokeLinecap="round"
+          className={draw ? "track-glow-in" : undefined}
           style={{ filter: "blur(3px)" }}
         />
       )}
@@ -62,6 +65,8 @@ export default function TrackMap({
         strokeWidth={mini ? 3 : 2}
         strokeLinejoin="round"
         strokeLinecap="round"
+        pathLength={draw ? 1 : undefined}
+        className={draw ? "track-draw" : undefined}
       />
       {dotSvg && (
         <>

@@ -639,7 +639,7 @@ export default async function RaceDetailPage({
               <div className="mt-6 flex-1">
                 {outline ? (
                   <div className="h-[180px]">
-                    <TrackMap points={outline} />
+                    <TrackMap points={outline} draw />
                   </div>
                 ) : (
                   <div className="flex h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/[0.1] text-[13px] text-[#F5F3F1]/40">

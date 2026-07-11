@@ -102,7 +102,7 @@ export default async function OverviewPage() {
             <div className="flex h-[220px] w-full flex-none p-[18px] lg:h-auto lg:w-[360px]">
               <div className="relative flex-1 overflow-hidden rounded-2xl bg-white/[0.02] p-4">
                 {outline ? (
-                  <TrackMap points={outline} />
+                  <TrackMap points={outline} draw />
                 ) : (
                   <div className="flex h-full flex-col justify-center gap-2 px-4">
                     <div className="text-[11px] tracking-[0.18em] text-[#F5F3F1]/45">

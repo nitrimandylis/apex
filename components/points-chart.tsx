@@ -114,7 +114,7 @@ export default function PointsChart({
 
       {/* Custom driver picker */}
       {pickerOpen && (
-        <div className="absolute top-11 left-0 z-20 max-h-[320px] w-[280px] overflow-y-auto rounded-2xl border border-white/[0.1] bg-[#101014] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
+        <div className="pop-in absolute top-11 left-0 z-20 max-h-[320px] w-[280px] overflow-y-auto rounded-2xl border border-white/[0.1] bg-[#101014] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
           {lines.map((l) => {
             const color = TEAM_COLORS[l.constructorId] ?? "#B6BABD";
             const on = selected.has(l.driverId);
@@ -209,12 +209,14 @@ export default function PointsChart({
           />
         )}
 
-        {shown.map((line) => {
+        {shown.map((line, lineIdx) => {
           const color = TEAM_COLORS[line.constructorId] ?? "#B6BABD";
           const path = line.cumulative
             .map((pts, i) => `${x(i).toFixed(1)},${y(pts).toFixed(1)}`)
             .join(" ");
           const lastIdx = line.cumulative.length - 1;
+          const drawDelay = `${lineIdx * 60}ms`;
+          const fadeDelay = `${400 + lineIdx * 60}ms`;
           return (
             <g key={line.driverId}>
               <polyline
@@ -224,6 +226,9 @@ export default function PointsChart({
                 strokeWidth="2"
                 strokeLinejoin="round"
                 strokeLinecap="round"
+                pathLength={1}
+                className="chart-draw"
+                style={{ animationDelay: drawDelay }}
               />
               {line.cumulative.map((pts, i) => (
                 <circle
@@ -232,6 +237,8 @@ export default function PointsChart({
                   cy={y(pts)}
                   r={hoverIdx === i ? 3.4 : 2}
                   fill={color}
+                  className="chart-fade"
+                  style={{ animationDelay: fadeDelay }}
                 />
               ))}
               <text
@@ -240,6 +247,8 @@ export default function PointsChart({
                 fontSize="10"
                 fontWeight="600"
                 fill={color}
+                className="chart-fade"
+                style={{ animationDelay: fadeDelay }}
               >
                 {line.familyName}
               </text>

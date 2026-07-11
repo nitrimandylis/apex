@@ -82,8 +82,13 @@ function Bar({
       </div>
       <div className="mt-2 h-[7px] overflow-hidden rounded-full bg-white/[0.07]">
         <div
-          className="h-full rounded-full"
-          style={{ background: gradient, width: `${value}%` }}
+          className="h-full w-full rounded-full"
+          style={{
+            background: gradient,
+            transform: `scaleX(${value / 100})`,
+            transformOrigin: "left",
+            transition: "transform 200ms linear",
+          }}
         />
       </div>
     </div>
@@ -496,6 +501,7 @@ export default function Replay() {
                 <TrackMap
                   points={outline}
                   dot={carDot ? { x: carDot.x, y: carDot.y } : null}
+                  draw
                 />
               </div>
             ) : (
