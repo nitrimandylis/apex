@@ -3,6 +3,23 @@
 
 @theme inline {
   --font-sans: var(--font-outfit), "Helvetica Neue", sans-serif;
+
+  /* Type scale. Steps are the sizes the dashboard already used most; the
+   * landing page was folded onto them. Add a step only when a real design
+   * needs one, never to preserve a one-off. */
+  --text-micro: 10.5px;
+  --text-label: 11px;
+  --text-caption: 12.5px;
+  --text-body: 13px;
+  --text-ui: 14.5px;
+  --text-lede: 16px;
+  --text-title: 19px;
+  --text-head: 22px;
+  --text-subhead: 26px;
+  --text-display-sm: 34px;
+  --text-display: 54px;
+  --text-hero: 72px;
+  --text-mega: 110px;
 }
 
 html,

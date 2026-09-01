@@ -56,7 +56,6 @@ export default async function LandingPage() {
       style={{
         background: "var(--color-paper)",
         color: "var(--color-ink)",
-        fontFamily: "var(--font-body)",
       }}
     >
       {/* Slab nav — two destinations, that's the whole point */}
@@ -65,11 +64,11 @@ export default async function LandingPage() {
         style={{ borderBottom: "3px solid var(--color-accent)" }}
       >
         <Logo size={24} />
-        <span className="text-lg font-bold tracking-[0.18em]">APEX</span>
+        <span className="text-base font-bold tracking-[0.16em]">APEX</span>
         <div className="flex-1" />
         <a
           href={GITHUB}
-          className="flex items-center gap-1.5 text-[13px] font-bold tracking-[0.12em] hover:text-[--color-accent-bright]"
+          className="flex items-center gap-1.5 text-body font-bold tracking-[0.16em] hover:text-[--color-accent-bright]"
           style={{ color: "var(--color-ink-dim)" }}
         >
           <GitHubMark size={15} />
@@ -77,7 +76,7 @@ export default async function LandingPage() {
         </a>
         <Link
           href="/overview"
-          className="px-4 py-2 text-[13px] font-bold tracking-[0.12em]"
+          className="px-4 py-2 text-body font-bold tracking-[0.16em]"
           style={{ background: "var(--color-accent)", color: "var(--color-ink)" }}
         >
           ENTER →
@@ -126,8 +125,7 @@ export default async function LandingPage() {
 
         <div className="relative" style={{ transform: "rotate(-2deg)" }}>
           <h1
-            className="text-[11vw] leading-[0.92] font-extrabold tracking-[-0.02em] uppercase lg:text-[110px]"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-[11vw] leading-[0.92] font-extrabold tracking-[-0.02em] uppercase lg:text-mega"
           >
             <span className="sweep-in block">Every race.</span>
             <span className="sweep-in delay-1 block">
@@ -142,7 +140,7 @@ export default async function LandingPage() {
           </h1>
         </div>
         <p
-          className="mt-10 max-w-[520px] text-[19px] leading-snug font-medium lg:text-[22px]"
+          className="mt-10 max-w-[520px] text-title leading-snug font-medium lg:text-head"
           style={{ color: "var(--color-ink-dim)" }}
         >
           APEX is an open-source Formula 1 dashboard. Nothing on it is
@@ -162,13 +160,12 @@ export default async function LandingPage() {
           }
         >
           <h2
-            className="max-w-[900px] text-[34px] leading-[1.05] font-extrabold lg:text-[54px]"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="max-w-[900px] text-display-sm leading-[1.05] font-extrabold lg:text-display"
           >
             {c.big}
           </h2>
           <p
-            className="mt-4 max-w-[560px] text-[16px] leading-normal lg:text-[18px]"
+            className="mt-4 max-w-[560px] text-lede leading-normal lg:text-title"
             style={{
               color: c.accent
                 ? "oklch(96.5% 0.003 90 / 0.85)"
@@ -197,13 +194,12 @@ export default async function LandingPage() {
             style={{ background: "var(--color-paper)" }}
           >
             <div
-              className="text-[56px] leading-none font-extrabold lg:text-[72px]"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="text-display leading-none font-extrabold lg:text-hero"
             >
               {n}
             </div>
             <div
-              className="mt-2 text-[13px] tracking-[0.08em] uppercase"
+              className="mt-2 text-label font-bold tracking-[0.2em] uppercase"
               style={{ color: "var(--color-ink-faint)" }}
             >
               {label}
@@ -215,7 +211,7 @@ export default async function LandingPage() {
       {/* Live strip — real, or absent */}
       {liveLine && (
         <div
-          className="overflow-x-auto px-6 py-4 text-[13px] font-bold tracking-[0.16em] whitespace-nowrap lg:px-12"
+          className="overflow-x-auto px-6 py-4 text-body font-bold tracking-[0.16em] whitespace-nowrap lg:px-12"
           style={{
             borderTop: "3px solid var(--color-accent)",
             borderBottom: "3px solid var(--color-accent)",
@@ -235,27 +231,25 @@ export default async function LandingPage() {
             style={{
               background: "var(--color-accent)",
               color: "var(--color-ink)",
-              fontFamily: "var(--font-display)",
             }}
           >
-            <span className="text-[6vw] leading-none font-extrabold tracking-[-0.01em] uppercase whitespace-nowrap lg:text-[52px]">
+            <span className="text-[6vw] leading-none font-extrabold tracking-[-0.01em] uppercase whitespace-nowrap lg:text-display">
               Enter the dashboard
             </span>
-            <span className="text-[6vw] leading-none font-extrabold transition-transform duration-200 group-hover:translate-x-2 lg:text-[52px]">
+            <span className="text-[6vw] leading-none font-extrabold transition-transform duration-200 group-hover:translate-x-2 lg:text-display">
               →
             </span>
           </Link>
           <a
             href={GITHUB}
-            className="gh-block flex items-center justify-center gap-3 px-6 py-9 text-[22px] font-extrabold tracking-[0.04em] uppercase transition-colors duration-200 lg:text-[26px]"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="gh-block flex items-center justify-center gap-3 px-6 py-9 text-head font-extrabold uppercase transition-colors duration-200 lg:text-subhead"
           >
             <GitHubMark size={26} />
             Source
           </a>
         </div>
         <p
-          className="mt-5 text-[13px]"
+          className="mt-5 text-body"
           style={{ color: "var(--color-ink-faint)" }}
         >
           github.com/nitrimandylis/apex · MIT
@@ -265,13 +259,12 @@ export default async function LandingPage() {
       {/* Statement footer */}
       <footer className="px-6 pt-16 pb-10 lg:px-12">
         <p
-          className="max-w-[820px] text-[26px] leading-tight font-extrabold lg:text-[38px]"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="max-w-[820px] text-subhead leading-tight font-extrabold lg:text-display-sm"
         >
           Unofficial. Unaffiliated. Just the data.
         </p>
         <p
-          className="mt-5 max-w-[640px] text-[13px] leading-relaxed"
+          className="mt-5 max-w-[640px] text-body leading-relaxed"
           style={{ color: "var(--color-ink-faint)" }}
         >
           APEX is a fan project and is not associated with Formula 1, the FIA,
@@ -280,7 +273,7 @@ export default async function LandingPage() {
           bundled.
         </p>
         <div
-          className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-bold tracking-[0.14em]"
+          className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-caption font-bold tracking-[0.2em]"
           style={{ color: "var(--color-ink-dim)" }}
         >
           <a

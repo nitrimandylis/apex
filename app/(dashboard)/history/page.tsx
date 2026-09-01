@@ -30,7 +30,7 @@ function Card({
         wide ? "lg:col-span-3" : ""
       }`}
     >
-      <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+      <div className="mb-4 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
         {title}
       </div>
       {children}
@@ -297,14 +297,14 @@ export default async function HistoryPage() {
                 key={f.label}
                 className="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3.5"
               >
-                <div className="text-[10.5px] tracking-[0.18em] text-[#F5F3F1]/45">
+                <div className="text-micro tracking-[0.18em] text-[#F5F3F1]/45">
                   {f.label}
                 </div>
                 <div className="mt-1 text-[20px] leading-tight font-bold">
                   {f.value}
                 </div>
                 {f.sub && (
-                  <div className="mt-0.5 text-[11px] leading-snug text-[#F5F3F1]/45">
+                  <div className="mt-0.5 text-label leading-snug text-[#F5F3F1]/45">
                     {f.sub}
                   </div>
                 )}
@@ -365,7 +365,7 @@ export default async function HistoryPage() {
                     familyName={c.familyName}
                     className="flex items-center gap-3 rounded-lg px-2 py-[5px] hover:bg-white/[0.04]"
                   >
-                    <div className="w-10 text-[12.5px] font-bold text-[#F5F3F1]/40">
+                    <div className="w-10 text-caption font-bold text-[#F5F3F1]/40">
                       {c.year}
                     </div>
                     <div
@@ -397,7 +397,7 @@ export default async function HistoryPage() {
                     key={c.year}
                     className="flex items-center gap-3 rounded-lg px-2 py-[5px] hover:bg-white/[0.04]"
                   >
-                    <div className="w-10 text-[12.5px] font-bold text-[#F5F3F1]/40">
+                    <div className="w-10 text-caption font-bold text-[#F5F3F1]/40">
                       {c.year}
                     </div>
                     <div

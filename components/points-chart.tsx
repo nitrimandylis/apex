@@ -119,7 +119,7 @@ export default function PointsChart({
           onClick={() => setPickerOpen((o) => !o)}
           aria-expanded={pickerOpen}
           aria-haspopup="listbox"
-          className="cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-1.5 text-[12.5px] font-semibold hover:bg-white/[0.09]"
+          className="cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-1.5 text-caption font-semibold hover:bg-white/[0.09]"
         >
           Drivers ({selected.size}) {pickerOpen ? "▴" : "▾"}
         </button>
@@ -181,7 +181,7 @@ export default function PointsChart({
                   className="h-3.5 w-[3px] rounded-full"
                   style={{ background: color }}
                 />
-                <span className="flex-1 text-[13px] font-medium">
+                <span className="flex-1 text-body font-medium">
                   {l.familyName}
                 </span>
                 <span className="text-[12px] text-[#F5F3F1]/40">
@@ -328,7 +328,7 @@ export default function PointsChart({
             </div>
           ))}
           {hovered.length > 8 && (
-            <div className="pt-0.5 text-[10.5px] text-[#F5F3F1]/40">
+            <div className="pt-0.5 text-micro text-[#F5F3F1]/40">
               +{hovered.length - 8} more
             </div>
           )}

@@ -78,7 +78,7 @@ export default async function CalendarPage() {
                 opacity: isDone ? 0.68 : 1,
               }}
             >
-              <div className="text-[13px] font-bold tracking-[0.08em] text-[#F5F3F1]/45">
+              <div className="text-body font-bold tracking-[0.08em] text-[#F5F3F1]/45">
                 R{String(race.round).padStart(2, "0")}
               </div>
               <div className="hidden h-10 lg:block">
@@ -99,7 +99,7 @@ export default async function CalendarPage() {
                     </span>
                   )}
                 </div>
-                <div className="mt-px text-[12.5px] text-[#F5F3F1]/50">
+                <div className="mt-px text-caption text-[#F5F3F1]/50">
                   {race.circuit}
                   <span className="lg:hidden"> · {dateRange(race)}</span>
                 </div>

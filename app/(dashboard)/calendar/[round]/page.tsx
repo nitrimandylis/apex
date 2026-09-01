@@ -73,7 +73,7 @@ function Card({
   return (
     <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-6 py-[22px] backdrop-blur-[18px] lg:px-7">
       <div className="mb-4 flex items-center">
-        <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+        <div className="text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
           {title}
         </div>
         <div className="flex-1" />
@@ -93,15 +93,15 @@ function Card({
 
 function GridDelta({ grid, pos }: { grid: number; pos: number }) {
   if (grid === 0) {
-    return <span className="text-[11px] text-[#F5F3F1]/40">PIT</span>;
+    return <span className="text-label text-[#F5F3F1]/40">PIT</span>;
   }
   const delta = grid - pos;
   if (delta === 0) {
-    return <span className="text-[11px] text-[#F5F3F1]/50">—</span>;
+    return <span className="text-label text-[#F5F3F1]/50">—</span>;
   }
   return (
     <span
-      className="text-[11px] font-semibold"
+      className="text-label font-semibold"
       style={{ color: delta > 0 ? "#43B02A" : "#FF564E" }}
     >
       {delta > 0 ? "▲" : "▼"}
@@ -144,7 +144,7 @@ function PodiumStep({
         </div>
         <div className="text-[12px] text-[#F5F3F1]/50">{row.team}</div>
         <div
-          className="mt-1 text-[12.5px] font-semibold"
+          className="mt-1 text-caption font-semibold"
           style={{ color: big ? "#FF564E" : "rgba(245,243,241,0.65)" }}
         >
           {big ? "WINNER" : row.time}
@@ -180,10 +180,10 @@ function PodiumHero({
         boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
       }}
     >
-      <div className="mb-1 text-center text-[11px] font-bold tracking-[0.2em] text-[#FF4B42]">
+      <div className="mb-1 text-center text-label font-bold tracking-[0.2em] text-[#FF4B42]">
         RACE REPORT
       </div>
-      <div className="mb-5 text-center text-[26px] font-bold tracking-[-0.01em] lg:text-[30px]">
+      <div className="mb-5 text-center text-subhead font-bold tracking-[-0.01em] lg:text-[30px]">
         {p1.familyName} wins the {raceName}
         {margin !== null && (
           <span className="text-[#F5F3F1]/50"> by {margin.toFixed(3)}s</span>
@@ -233,7 +233,7 @@ function MoverRow({ m, gained }: { m: Mover; gained: boolean }) {
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3.5">
-      <div className="text-[10.5px] tracking-[0.18em] text-[#F5F3F1]/45">
+      <div className="text-micro tracking-[0.18em] text-[#F5F3F1]/45">
         {label}
       </div>
       <div className="mt-1 text-[20px] leading-tight font-bold">{value}</div>
@@ -274,7 +274,7 @@ function RaceTable({
           background={i % 2 === 0 ? "rgba(255,255,255,0.025)" : undefined}
           className="flex items-center gap-3 rounded-xl px-3 py-[7px]"
         >
-          <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
+          <div className="w-6 text-body font-bold text-[#F5F3F1]/40">
             {r.pos}
           </div>
           <Headshot
@@ -295,13 +295,13 @@ function RaceTable({
               </span>
             )}
           </div>
-          <div className="hidden min-w-0 flex-1 truncate text-[12.5px] text-[#F5F3F1]/45 sm:block">
+          <div className="hidden min-w-0 flex-1 truncate text-caption text-[#F5F3F1]/45 sm:block">
             {r.team}
           </div>
           <div className="w-9 text-center">
             <GridDelta grid={r.grid} pos={r.pos} />
           </div>
-          <div className="w-[104px] truncate text-right text-[12.5px] text-[#F5F3F1]/70">
+          <div className="w-[104px] truncate text-right text-caption text-[#F5F3F1]/70">
             {r.time}
           </div>
           <div className="w-8 text-right text-[13.5px] font-bold">
@@ -339,7 +339,7 @@ function QualiTable({
           background={i % 2 === 0 ? "rgba(255,255,255,0.025)" : undefined}
           className="flex items-center gap-3 rounded-xl px-3 py-[7px]"
         >
-          <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
+          <div className="w-6 text-body font-bold text-[#F5F3F1]/40">
             {r.pos}
           </div>
           <Headshot
@@ -355,16 +355,16 @@ function QualiTable({
           <div className="w-[150px] truncate text-[14px] font-medium">
             {r.familyName}
           </div>
-          <div className="hidden min-w-0 flex-1 truncate text-[12.5px] text-[#F5F3F1]/45 sm:block">
+          <div className="hidden min-w-0 flex-1 truncate text-caption text-[#F5F3F1]/45 sm:block">
             {r.team}
           </div>
-          <div className="w-[72px] text-right text-[12.5px] text-[#F5F3F1]/55">
+          <div className="w-[72px] text-right text-caption text-[#F5F3F1]/55">
             {r.q1}
           </div>
-          <div className="w-[72px] text-right text-[12.5px] text-[#F5F3F1]/55">
+          <div className="w-[72px] text-right text-caption text-[#F5F3F1]/55">
             {r.q2}
           </div>
-          <div className="w-[72px] text-right text-[12.5px] font-semibold text-[#F5F3F1]/85">
+          <div className="w-[72px] text-right text-caption font-semibold text-[#F5F3F1]/85">
             {r.q3}
           </div>
         </FavRow>
@@ -383,7 +383,7 @@ function SessionTable({ rows }: { rows: SessionResultRow[] }) {
           background={i % 2 === 0 ? "rgba(255,255,255,0.025)" : undefined}
           className="flex items-center gap-3 rounded-xl px-3 py-[7px]"
         >
-          <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
+          <div className="w-6 text-body font-bold text-[#F5F3F1]/40">
             {r.pos}
           </div>
           <Headshot
@@ -399,13 +399,13 @@ function SessionTable({ rows }: { rows: SessionResultRow[] }) {
           <div className="w-[150px] truncate text-[14px] font-medium">
             {r.lastName}
           </div>
-          <div className="hidden min-w-0 flex-1 truncate text-[12.5px] text-[#F5F3F1]/45 sm:block">
+          <div className="hidden min-w-0 flex-1 truncate text-caption text-[#F5F3F1]/45 sm:block">
             {r.teamName}
           </div>
-          <div className="w-[84px] text-right text-[12.5px] text-[#F5F3F1]/70">
+          <div className="w-[84px] text-right text-caption text-[#F5F3F1]/70">
             {r.status !== "" ? r.status : formatLapTime(r.bestTime)}
           </div>
-          <div className="w-[72px] text-right text-[12.5px] text-[#F5F3F1]/45">
+          <div className="w-[72px] text-right text-caption text-[#F5F3F1]/45">
             {r.pos === 1 || r.gap === null ? "" : `+${r.gap.toFixed(3)}`}
           </div>
           <div className="w-14 text-right text-[12px] text-[#F5F3F1]/40">
@@ -579,7 +579,7 @@ export default async function RaceDetailPage({
       <PageHeader title={`${flagFor(race.country)} ${race.name}`}>
         <Link
           href="/calendar"
-          className="text-[13px] text-[#F5F3F1]/45 hover:text-[#FF564E]"
+          className="text-body text-[#F5F3F1]/45 hover:text-[#FF564E]"
         >
           ← Calendar
         </Link>
@@ -631,10 +631,10 @@ export default async function RaceDetailPage({
                 <div key={m.t + m.message} className="flex items-start gap-3">
                   <MomentDot m={m} />
                   <div className="min-w-0">
-                    <div className="text-[12.5px] leading-snug text-[#F5F3F1]/80">
+                    <div className="text-caption leading-snug text-[#F5F3F1]/80">
                       {m.message}
                     </div>
-                    <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/50">
+                    <div className="text-micro tracking-[0.1em] text-[#F5F3F1]/50">
                       {formatElapsed(m.t - raceStartMs)}
                     </div>
                   </div>
@@ -647,7 +647,7 @@ export default async function RaceDetailPage({
         {isFullyFuture && (
           <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[1.2fr_1fr]">
             <div className="flex flex-col rounded-[22px] border border-white/[0.08] bg-white/[0.025] px-7 py-6 backdrop-blur-[18px]">
-              <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+              <div className="text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
                 LIGHTS OUT
               </div>
               <Countdown targetIso={race.raceStart} />
@@ -657,18 +657,18 @@ export default async function RaceDetailPage({
                     <TrackMap points={outline} draw />
                   </div>
                 ) : (
-                  <div className="flex h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/[0.1] text-[13px] text-[#F5F3F1]/40">
+                  <div className="flex h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/[0.1] text-body text-[#F5F3F1]/40">
                     New circuit — map appears after the first session here
                   </div>
                 )}
               </div>
             </div>
             <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.025] px-7 py-6 backdrop-blur-[18px]">
-              <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+              <div className="mb-4 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
                 PAST WINNERS · {race.locality.toUpperCase()}
               </div>
               {winners.length === 0 ? (
-                <div className="py-8 text-center text-[13px] text-[#F5F3F1]/40">
+                <div className="py-8 text-center text-body text-[#F5F3F1]/40">
                   No one has ever won here — first winner crowned this year.
                 </div>
               ) : (
@@ -678,7 +678,7 @@ export default async function RaceDetailPage({
                       key={w.season}
                       className="flex items-center gap-3.5 rounded-xl px-3.5 py-2 hover:bg-white/[0.04]"
                     >
-                      <div className="w-11 text-[13px] font-bold text-[#F5F3F1]/40">
+                      <div className="w-11 text-body font-bold text-[#F5F3F1]/40">
                         {w.season}
                       </div>
                       <div
@@ -687,11 +687,11 @@ export default async function RaceDetailPage({
                           background: TEAM_COLORS[w.constructorId] ?? "#B6BABD",
                         }}
                       />
-                      <div className="text-[14.5px] font-medium">
+                      <div className="text-ui font-medium">
                         {w.familyName}
                       </div>
                       <div className="flex-1" />
-                      <div className="text-[12.5px] text-[#F5F3F1]/45">
+                      <div className="text-caption text-[#F5F3F1]/45">
                         {w.team}
                       </div>
                     </div>
@@ -707,7 +707,7 @@ export default async function RaceDetailPage({
         )}
 
         {cards.length > 0 && (
-          <div className="mt-1 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/40">
+          <div className="mt-1 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/40">
             FULL CLASSIFICATIONS
           </div>
         )}

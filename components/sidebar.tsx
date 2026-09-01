@@ -40,7 +40,7 @@ export default function Sidebar({
         <div className="flex items-center gap-2.5 px-1 pb-2">
           {logo}
           <span className="text-base font-bold tracking-[0.16em]">APEX</span>
-          <span className="text-[10px] tracking-[0.2em] text-[#F5F3F1]/45">
+          <span className="text-micro tracking-[0.2em] text-[#F5F3F1]/45">
             2026
           </span>
           <div className="flex-1" />
@@ -64,7 +64,7 @@ export default function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-lg px-3.5 py-2.5 text-[13px] font-medium whitespace-nowrap ${
+              className={`rounded-lg px-3.5 py-2.5 text-body font-medium whitespace-nowrap ${
                 pathname === item.href
                   ? "bg-white/[0.08] text-[#F5F3F1]"
                   : "text-[#F5F3F1]/58"
@@ -81,10 +81,10 @@ export default function Sidebar({
       <div className="flex items-center gap-[11px] px-2 pb-[26px]">
         {logo}
         <div>
-          <div className="text-[19px] leading-none font-bold tracking-[0.16em]">
+          <div className="text-title leading-none font-bold tracking-[0.16em]">
             APEX
           </div>
-          <div className="mt-1 text-[10.5px] tracking-[0.22em] text-[#F5F3F1]/45">
+          <div className="mt-1 text-micro tracking-[0.2em] text-[#F5F3F1]/45">
             2026 SEASON
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function Sidebar({
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-[11px] rounded-xl px-3.5 py-[11px] text-[14.5px] font-medium tracking-[0.02em] hover:bg-white/[0.06] hover:text-[#F5F3F1] ${
+            className={`flex items-center gap-[11px] rounded-xl px-3.5 py-[11px] text-ui font-medium tracking-[0.02em] hover:bg-white/[0.06] hover:text-[#F5F3F1] ${
               active ? "bg-white/[0.06] text-[#F5F3F1]" : "text-[#F5F3F1]/58"
             }`}
           >
@@ -126,13 +126,13 @@ export default function Sidebar({
 
       {drivers.length > 0 && (
         <div className="mb-1.5 px-1">
-          <div className="mb-1.5 px-1 text-[10.5px] tracking-[0.18em] text-[#F5F3F1]/45">
+          <div className="mb-1.5 px-1 text-micro tracking-[0.18em] text-[#F5F3F1]/45">
             FAVORITE DRIVER
           </div>
           <select
             value={favorite}
             onChange={(e) => setFavorite(e.target.value)}
-            className="w-full cursor-pointer rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[13px] text-[#F5F3F1] outline-none"
+            className="w-full cursor-pointer rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-body text-[#F5F3F1] outline-none"
           >
             <option value="" className="bg-[#111114]">
               No favorite
@@ -148,10 +148,10 @@ export default function Sidebar({
 
       {nextRace && (
         <div className="rounded-[14px] border border-white/[0.07] bg-white/[0.025] px-[15px] py-3.5">
-          <div className="text-[10.5px] tracking-[0.18em] text-[#F5F3F1]/45">
+          <div className="text-micro tracking-[0.18em] text-[#F5F3F1]/45">
             NEXT · ROUND {nextRace.round}
           </div>
-          <div className="mt-[5px] text-[14.5px] font-semibold">
+          <div className="mt-[5px] text-ui font-semibold">
             {nextRace.name}
           </div>
           <div className="mt-0.5 text-xs text-[#F5F3F1]/55">

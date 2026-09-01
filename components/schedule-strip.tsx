@@ -56,7 +56,7 @@ export default function ScheduleStrip({
             }}
           >
             <div
-              className="text-[11px] tracking-[0.16em]"
+              className="text-label tracking-[0.16em]"
               style={{
                 color: isNext ? "rgba(255,86,78,0.8)" : "rgba(245,243,241,0.45)",
               }}

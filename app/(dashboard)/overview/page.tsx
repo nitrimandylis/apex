@@ -22,7 +22,7 @@ export const metadata = { title: "Overview · APEX" };
 
 function CardLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+    <div className="text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
       {children}
     </div>
   );
@@ -85,11 +85,11 @@ export default async function OverviewPage() {
           >
             <div className="flex flex-1 flex-col gap-1.5 px-6 py-6 lg:px-[38px] lg:py-[34px]">
               <div className="flex items-center gap-2.5">
-                <span className="text-[11px] font-bold tracking-[0.2em] text-[#FF4B42]">
+                <span className="text-label font-bold tracking-[0.2em] text-[#FF4B42]">
                   NEXT RACE
                 </span>
                 <span className="h-1 w-1 rounded-full bg-[#F5F3F1]/30" />
-                <span className="text-[11px] tracking-[0.2em] text-[#F5F3F1]/50">
+                <span className="text-label tracking-[0.2em] text-[#F5F3F1]/50">
                   ROUND {next.round} OF {races.length}
                 </span>
               </div>
@@ -107,11 +107,11 @@ export default async function OverviewPage() {
                   <TrackMap points={outline} draw />
                 ) : (
                   <div className="flex h-full flex-col justify-center gap-2 px-4">
-                    <div className="text-[11px] tracking-[0.18em] text-[#F5F3F1]/45">
+                    <div className="text-label tracking-[0.18em] text-[#F5F3F1]/45">
                       CIRCUIT
                     </div>
                     <div className="text-lg font-semibold">{next.circuit}</div>
-                    <div className="text-[13px] text-[#F5F3F1]/55">
+                    <div className="text-body text-[#F5F3F1]/55">
                       {next.locality}, {next.country}
                     </div>
                     <div className="mt-2 text-xs text-[#F5F3F1]/40">
@@ -138,7 +138,7 @@ export default async function OverviewPage() {
           >
             <CardLabel>TELEMETRY</CardLabel>
             <div className="flex flex-1 flex-col justify-center gap-2 py-3.5">
-              <div className="text-[19px] font-semibold text-[#F5F3F1]/75">
+              <div className="text-title font-semibold text-[#F5F3F1]/75">
                 Replay a real session
               </div>
               <div className="text-[13.5px] leading-normal text-[#F5F3F1]/50">
@@ -153,7 +153,7 @@ export default async function OverviewPage() {
                   : "Speed, gear and gaps from any past session, replayed as it happened."}
               </div>
             </div>
-            <div className="text-[12.5px] font-semibold tracking-[0.06em] text-[#FF564E]">
+            <div className="text-caption font-semibold tracking-[0.06em] text-[#FF564E]">
               Open telemetry →
             </div>
           </Link>
@@ -171,7 +171,7 @@ export default async function OverviewPage() {
               </Link>
             </div>
             <div className="mt-3.5 text-lg font-semibold">{lastRace.name}</div>
-            <div className="mt-0.5 text-[12.5px] text-[#F5F3F1]/50">
+            <div className="mt-0.5 text-caption text-[#F5F3F1]/50">
               {lastRace.circuit} ·{" "}
               {new Date(lastRace.date).toLocaleDateString("en-GB", {
                 day: "numeric",
@@ -185,7 +185,7 @@ export default async function OverviewPage() {
                   familyName={p.familyName}
                   className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-0.5"
                 >
-                  <div className="w-[22px] text-[13px] font-bold text-[#F5F3F1]/45">
+                  <div className="w-[22px] text-body font-bold text-[#F5F3F1]/45">
                     {p.pos}
                   </div>
                   <div
@@ -194,11 +194,11 @@ export default async function OverviewPage() {
                       background: TEAM_COLORS[p.constructorId] ?? "#B6BABD",
                     }}
                   />
-                  <div className="text-[14.5px] font-medium">
+                  <div className="text-ui font-medium">
                     {p.familyName}
                   </div>
                   <div className="flex-1" />
-                  <div className="text-[12.5px] text-[#F5F3F1]/50">
+                  <div className="text-caption text-[#F5F3F1]/50">
                     {p.time}
                   </div>
                 </FavRow>
@@ -230,7 +230,7 @@ export default async function OverviewPage() {
                   familyName={d.familyName}
                   className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-0.5"
                 >
-                  <div className="w-[22px] text-[13px] font-bold text-[#F5F3F1]/45">
+                  <div className="w-[22px] text-body font-bold text-[#F5F3F1]/45">
                     {d.pos}
                   </div>
                   <Headshot
@@ -239,7 +239,7 @@ export default async function OverviewPage() {
                     color={TEAM_COLORS[d.constructorId] ?? "#B6BABD"}
                     size={24}
                   />
-                  <div className="text-[14.5px] font-medium">
+                  <div className="text-ui font-medium">
                     {d.familyName}
                   </div>
                   <div className="flex-1" />

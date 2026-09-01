@@ -57,7 +57,7 @@ type LoadedData = {
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex-1 rounded-2xl border border-white/[0.07] bg-white/[0.04] px-[18px] py-4">
-      <div className="text-[11px] tracking-[0.16em] text-[#F5F3F1]/45">
+      <div className="text-label tracking-[0.16em] text-[#F5F3F1]/45">
         {label}
       </div>
       <div className="mt-1.5 text-[30px] font-bold">{value}</div>
@@ -76,7 +76,7 @@ function Bar({
 }) {
   return (
     <div className="mt-[18px]">
-      <div className="flex justify-between text-[11px] tracking-[0.14em] text-[#F5F3F1]/45">
+      <div className="flex justify-between text-label tracking-[0.14em] text-[#F5F3F1]/45">
         <span>{label}</span>
         <span>{value}%</span>
       </div>
@@ -310,7 +310,7 @@ export default function Replay() {
             <div className="h-2.5 w-2.5 rounded-full bg-[#F5F3F1]/25" />
           </div>
           <div className="text-2xl font-semibold">Replay a real session</div>
-          <div className="max-w-[440px] text-[14.5px] leading-relaxed text-[#F5F3F1]/55">
+          <div className="max-w-[440px] text-ui leading-relaxed text-[#F5F3F1]/55">
             Pick any past session and watch its telemetry play back exactly as
             it happened — real speed, gears and gaps from the F1 cars.
           </div>
@@ -356,7 +356,7 @@ export default function Replay() {
             {phase === "loading" ? "Loading telemetry…" : "Start replay"}
           </button>
           {error && (
-            <div className="mt-3 text-[13px] text-[#FF564E]">{error}</div>
+            <div className="mt-3 text-body text-[#FF564E]">{error}</div>
           )}
         </div>
       </div>
@@ -403,13 +403,13 @@ export default function Replay() {
       <div className="mb-5 flex flex-wrap items-center gap-3.5 rounded-[18px] border border-white/[0.08] bg-white/[0.03] px-5 py-3.5 backdrop-blur-[18px]">
         <button
           onClick={() => setPaused((p) => !p)}
-          className="w-[86px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-[13px] font-semibold hover:bg-white/[0.09]"
+          className="w-[86px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-body font-semibold hover:bg-white/[0.09]"
         >
           {paused ? "Play" : "Pause"}
         </button>
         <button
           onClick={() => setSpeedIdx((i) => (i + 1) % SPEEDS.length)}
-          className="w-[52px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-[13px] font-semibold hover:bg-white/[0.09]"
+          className="w-[52px] cursor-pointer rounded-full border border-white/[0.1] bg-white/[0.05] py-2 text-body font-semibold hover:bg-white/[0.09]"
         >
           {SPEEDS[speedIdx]}×
         </button>
@@ -453,11 +453,11 @@ export default function Replay() {
                   size={36}
                 />
               )}
-              <div className="text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+              <div className="text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
                 CAR {driver?.number} · {driver?.lastName.toUpperCase()}
               </div>
               {switching && (
-                <div className="text-[11px] text-[#FF564E]">loading…</div>
+                <div className="text-label text-[#FF564E]">loading…</div>
               )}
             </div>
 
@@ -493,7 +493,7 @@ export default function Replay() {
 
           {/* Track map + weather */}
           <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
-            <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+            <div className="mb-4 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
               TRACK · {driver?.acronym}
             </div>
             {outline ? (
@@ -505,7 +505,7 @@ export default function Replay() {
                 />
               </div>
             ) : (
-              <div className="flex h-[220px] items-center justify-center text-[13px] text-[#F5F3F1]/40">
+              <div className="flex h-[220px] items-center justify-center text-body text-[#F5F3F1]/40">
                 No track geometry for this circuit yet
               </div>
             )}
@@ -518,7 +518,7 @@ export default function Replay() {
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5 text-[11px]"
+                    className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5 text-label"
                   >
                     <span className="tracking-[0.14em] text-[#F5F3F1]/40">
                       {label}{" "}
@@ -527,7 +527,7 @@ export default function Replay() {
                   </div>
                 ))}
                 <div
-                  className="rounded-lg border px-2.5 py-1.5 text-[11px]"
+                  className="rounded-lg border px-2.5 py-1.5 text-label"
                   style={{
                     borderColor: weatherNow.rainfall
                       ? "rgba(0,144,255,0.5)"
@@ -551,7 +551,7 @@ export default function Replay() {
 
         {/* Right column: full running order */}
         <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
-          <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+          <div className="mb-[18px] text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             RUNNING ORDER · {session?.location.toUpperCase()}
             <span className="ml-2 font-normal tracking-normal text-[#F5F3F1]/30 normal-case">
               — click a driver to follow their car
@@ -595,7 +595,7 @@ export default function Replay() {
                         : "transparent",
                   }}
                 >
-                  <div className="w-5 text-[13px] font-bold text-[#F5F3F1]/40">
+                  <div className="w-5 text-body font-bold text-[#F5F3F1]/40">
                     {isFeatured ? "▶" : i + 1}
                   </div>
                   <Headshot src={d.headshot} name={d.lastName} color={color} size={24} />
@@ -606,7 +606,7 @@ export default function Replay() {
                   <div className="w-[52px] text-sm font-semibold tracking-[0.06em]">
                     {d.acronym}
                   </div>
-                  <div className="hidden min-w-0 flex-1 truncate text-[12.5px] text-[#F5F3F1]/45 sm:block">
+                  <div className="hidden min-w-0 flex-1 truncate text-caption text-[#F5F3F1]/45 sm:block">
                     {d.teamName}
                   </div>
                   <div
@@ -615,7 +615,7 @@ export default function Replay() {
                   >
                     {tyre}
                   </div>
-                  <div className="w-[70px] text-right text-[13px] text-[#F5F3F1]/75">
+                  <div className="w-[70px] text-right text-body text-[#F5F3F1]/75">
                     {gap}
                   </div>
                 </button>
@@ -629,12 +629,12 @@ export default function Replay() {
       <div className="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
         {/* Race control */}
         <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
-          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+          <div className="mb-4 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             RACE CONTROL
           </div>
           <div className="flex flex-col gap-2.5">
             {rcFeed.length === 0 && (
-              <div className="py-6 text-center text-[13px] text-[#F5F3F1]/40">
+              <div className="py-6 text-center text-body text-[#F5F3F1]/40">
                 No messages yet
               </div>
             )}
@@ -645,10 +645,10 @@ export default function Replay() {
                   style={{ background: flagColor(m.flag) }}
                 />
                 <div className="min-w-0">
-                  <div className="text-[12.5px] leading-snug text-[#F5F3F1]/80">
+                  <div className="text-caption leading-snug text-[#F5F3F1]/80">
                     {m.message}
                   </div>
-                  <div className="text-[10.5px] tracking-[0.1em] text-[#F5F3F1]/50">
+                  <div className="text-micro tracking-[0.1em] text-[#F5F3F1]/50">
                     {formatElapsed(m.t - sessionStart)}
                   </div>
                 </div>
@@ -659,12 +659,12 @@ export default function Replay() {
 
         {/* Team radio */}
         <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-[26px] py-6 backdrop-blur-[18px]">
-          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+          <div className="mb-4 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             TEAM RADIO
           </div>
           <div className="flex flex-col gap-2.5">
             {radioFeed.length === 0 && (
-              <div className="py-6 text-center text-[13px] text-[#F5F3F1]/40">
+              <div className="py-6 text-center text-body text-[#F5F3F1]/40">
                 No radio yet
               </div>
             )}
@@ -678,10 +678,10 @@ export default function Replay() {
                       background: d ? colorForTeamName(d.teamName) : "#B6BABD",
                     }}
                   />
-                  <div className="w-11 flex-none text-[12.5px] font-semibold tracking-[0.06em]">
+                  <div className="w-11 flex-none text-caption font-semibold tracking-[0.06em]">
                     {d?.acronym ?? `#${clip.driver}`}
                   </div>
-                  <div className="w-12 flex-none text-[10.5px] text-[#F5F3F1]/50">
+                  <div className="w-12 flex-none text-micro text-[#F5F3F1]/50">
                     {formatElapsed(clip.t - sessionStart)}
                   </div>
                   <audio

@@ -11,7 +11,7 @@ export default function DashboardError({
   return (
     <div className="flex flex-col items-center gap-3 rounded-[22px] border border-white/[0.08] bg-white/[0.025] px-10 py-[70px] text-center backdrop-blur-[18px]">
       <div className="text-2xl font-semibold">Couldn&apos;t load this page</div>
-      <div className="max-w-[420px] text-[14.5px] leading-relaxed text-[#F5F3F1]/55">
+      <div className="max-w-[420px] text-ui leading-relaxed text-[#F5F3F1]/55">
         The data services (Jolpica / OpenF1) may be rate-limiting right now.
         It usually clears in a few seconds.
       </div>

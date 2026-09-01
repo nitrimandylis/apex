@@ -33,7 +33,7 @@ export default async function StandingsPage() {
       />
       {progression && (
         <div className="mb-5 rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
-          <div className="mb-4 text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+          <div className="mb-4 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             TITLE FIGHT · POINTS BY EVENT
           </div>
           <PointsChart events={progression.events} lines={progression.lines} />
@@ -41,7 +41,7 @@ export default async function StandingsPage() {
       )}
       <div className="flex flex-col gap-5">
         <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
-          <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+          <div className="mb-[18px] text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             DRIVERS · AFTER ROUND {round}
           </div>
           <div className="grid grid-cols-1 gap-x-8 gap-y-1.5 lg:grid-cols-2">
@@ -70,7 +70,7 @@ export default async function StandingsPage() {
         </div>
 
         <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
-          <div className="mb-[18px] text-[11px] font-bold tracking-[0.2em] text-[#F5F3F1]/50">
+          <div className="mb-[18px] text-label font-bold tracking-[0.2em] text-[#F5F3F1]/50">
             CONSTRUCTORS
           </div>
           <div className="grid grid-cols-1 gap-x-10 gap-y-3.5 lg:grid-cols-2">
@@ -88,14 +88,14 @@ export default async function StandingsPage() {
                   return (
                     <div key={t.constructorId}>
                       <div className="flex items-center gap-3">
-                        <div className="w-6 text-[13px] font-bold text-[#F5F3F1]/40">
+                        <div className="w-6 text-body font-bold text-[#F5F3F1]/40">
                           {t.pos}
                         </div>
-                        <div className="text-[14.5px] font-medium">
+                        <div className="text-ui font-medium">
                           {t.name}
                         </div>
                         <div className="flex-1" />
-                        <div className="text-[14.5px] font-bold">
+                        <div className="text-ui font-bold">
                           {t.points}
                         </div>
                       </div>

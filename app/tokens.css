@@ -14,8 +14,10 @@
   --color-accent-bright: oklch(64% 0.21 27); /* #FF564E */
   --color-rule: oklch(96.5% 0.003 90 / 0.08);
 
-  --font-display: var(--font-outfit), "Helvetica Neue", sans-serif;
-  --font-body: var(--font-outfit), "Helvetica Neue", sans-serif;
+  /* One family, one scale. Sizes live in globals.css @theme as --text-*;
+   * they are the dashboard's own values, and the landing uses them too.
+   * Caps tracking by size: <=12.5px -> 0.2em, 13-19px -> 0.16em,
+   * display (>=26px) -> 0 to -0.02em. */
 
   --space-sm: 12px;
   --space-md: 24px;

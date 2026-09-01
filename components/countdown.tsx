@@ -21,13 +21,13 @@ function Box({
       }}
     >
       <div
-        className="text-[26px] leading-none font-bold lg:text-[34px]"
+        className="text-subhead leading-none font-bold lg:text-display-sm"
         style={accent ? { color: "#FF564E" } : undefined}
       >
         {value}
       </div>
       <div
-        className="mt-1.5 text-[10.5px] tracking-[0.2em]"
+        className="mt-1.5 text-micro tracking-[0.2em]"
         style={{
           color: accent ? "rgba(255,86,78,0.7)" : "rgba(245,243,241,0.45)",
         }}

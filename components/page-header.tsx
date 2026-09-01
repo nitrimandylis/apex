@@ -29,10 +29,10 @@ export default function PageHeader({
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 lg:mb-[30px]">
-      <div className="text-[26px] font-semibold tracking-[0.01em]">{title}</div>
+      <div className="text-subhead font-semibold tracking-[0.01em]">{title}</div>
       <div className="flex-1" />
       {children}
-      <div className="text-[13px] text-[#F5F3F1]/50">
+      <div className="text-body text-[#F5F3F1]/50">
         {today}
         {sub ? ` · ${sub}` : ""}
       </div>
