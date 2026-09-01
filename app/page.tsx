@@ -53,240 +53,187 @@ export default async function LandingPage() {
   return (
     <div
       className="min-h-screen overflow-x-clip"
-      style={{
-        background: "var(--color-paper)",
-        color: "var(--color-ink)",
-      }}
+      style={{ background: "var(--paper-field)", color: "var(--color-ink)" }}
     >
-      {/* Slab nav — two destinations, that's the whole point */}
-      <nav
-        className="flex items-center gap-3 px-4 py-5 sm:gap-4 sm:px-6 lg:px-12"
-        style={{ borderBottom: "3px solid var(--color-accent)" }}
-      >
-        <Logo size={24} />
-        <span className="text-base font-bold tracking-[0.16em]">APEX</span>
-        <div className="flex-1" />
-        <a
-          href={GITHUB}
-          className="flex items-center gap-1.5 text-body font-bold tracking-[0.16em] hover:text-[--color-accent-bright]"
-          style={{ color: "var(--color-ink-dim)" }}
-        >
-          <GitHubMark size={15} />
-          GITHUB ↗
-        </a>
-        <Link
-          href="/overview"
-          className="px-4 py-2 text-body font-bold tracking-[0.16em]"
-          style={{ background: "var(--color-accent)", color: "var(--color-ink)" }}
-        >
-          ENTER →
-        </Link>
+      {/* Same sticky glass bar the dashboard uses for its mobile top bar */}
+      <nav className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#060608]/90 backdrop-blur-[20px]">
+        <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-5 py-4 sm:gap-4 lg:px-12">
+          <Logo size={24} />
+          <span className="text-base font-bold tracking-[0.16em]">APEX</span>
+          <div className="flex-1" />
+          <a
+            href={GITHUB}
+            className="flex items-center gap-1.5 text-body font-medium text-[#F5F3F1]/58 hover:text-[#F5F3F1]"
+          >
+            <GitHubMark size={15} />
+            Source
+          </a>
+          <Link
+            href="/overview"
+            className="rounded-full bg-[#E10600] px-6 py-2.5 text-body font-semibold tracking-[0.04em] hover:brightness-110"
+          >
+            Enter
+          </Link>
+        </div>
       </nav>
 
-      {/* Manifesto hero */}
-      <header className="relative overflow-hidden px-6 pt-20 pb-24 lg:px-12 lg:pt-28 lg:pb-32">
-        {spa && (
-          <svg
-            viewBox="0 0 100 100"
-            className="pointer-events-none absolute -right-10 top-1/2 hidden h-[560px] w-[560px] -translate-y-1/2 lg:block"
-            style={{ opacity: 0.14 }}
-            aria-hidden
-          >
-            <polyline
-              points={(() => {
-                const xs = spa.map((p) => p.x);
-                const ys = spa.map((p) => p.y);
-                const minX = Math.min(...xs);
-                const minY = Math.min(...ys);
-                const scale =
-                  84 /
-                  Math.max(
-                    Math.max(...xs) - minX,
-                    Math.max(...ys) - minY,
-                  );
-                return spa
-                  .map(
-                    (p) =>
-                      `${(8 + (p.x - minX) * scale).toFixed(1)},${(
-                        100 -
-                        (8 + (p.y - minY) * scale)
-                      ).toFixed(1)}`,
-                  )
-                  .join(" ");
-              })()}
-              fill="none"
-              stroke="var(--color-ink)"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-          </svg>
-        )}
+      <div className="mx-auto max-w-[1280px] px-5 lg:px-12">
+        {/* Hero */}
+        <header className="relative overflow-hidden pt-20 pb-20 lg:pt-28 lg:pb-24">
+          {spa && (
+            <svg
+              viewBox="0 0 100 100"
+              className="pointer-events-none absolute -right-10 top-1/2 hidden h-[560px] w-[560px] -translate-y-1/2 lg:block"
+              style={{ opacity: 0.14 }}
+              aria-hidden
+            >
+              <polyline
+                points={(() => {
+                  const xs = spa.map((p) => p.x);
+                  const ys = spa.map((p) => p.y);
+                  const minX = Math.min(...xs);
+                  const minY = Math.min(...ys);
+                  const scale =
+                    84 /
+                    Math.max(
+                      Math.max(...xs) - minX,
+                      Math.max(...ys) - minY,
+                    );
+                  return spa
+                    .map(
+                      (p) =>
+                        `${(8 + (p.x - minX) * scale).toFixed(1)},${(
+                          100 -
+                          (8 + (p.y - minY) * scale)
+                        ).toFixed(1)}`,
+                    )
+                    .join(" ");
+                })()}
+                fill="none"
+                stroke="var(--color-ink)"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
 
-        <div className="relative" style={{ transform: "rotate(-2deg)" }}>
-          <h1
-            className="text-[11vw] leading-[0.92] font-extrabold tracking-[-0.02em] uppercase lg:text-mega"
-          >
+          <h1 className="relative max-w-[900px] text-[9vw] leading-[1.02] font-bold tracking-[-0.02em] lg:text-hero">
             <span className="sweep-in block">Every race.</span>
             <span className="sweep-in delay-1 block">
-              <span
-                className="px-3"
-                style={{ background: "var(--color-accent)" }}
-              >
+              <span className="rounded-[14px] bg-[#E10600]/90 px-3">
                 Every number.
               </span>
             </span>
             <span className="sweep-in delay-2 block">Every year.</span>
           </h1>
-        </div>
-        <p
-          className="mt-10 max-w-[520px] text-title leading-snug font-medium lg:text-head"
-          style={{ color: "var(--color-ink-dim)" }}
-        >
-          APEX is an open-source Formula 1 dashboard. Nothing on it is
-          hardcoded, mocked, or made up.
-        </p>
-      </header>
+          <p className="relative mt-8 max-w-[520px] text-title leading-snug font-medium text-[#F5F3F1]/60 lg:text-head">
+            APEX is an open-source Formula 1 dashboard. Nothing on it is
+            hardcoded, mocked, or made up.
+          </p>
+        </header>
 
-      {/* Claims — bleed blocks, no hairlines */}
-      {claims.map((c) => (
-        <section
-          key={c.big}
-          className="px-6 py-16 lg:px-12 lg:py-20"
-          style={
-            c.accent
-              ? { background: "var(--color-accent)" }
-              : { background: "var(--color-paper)" }
-          }
-        >
-          <h2
-            className="max-w-[900px] text-display-sm leading-[1.05] font-extrabold lg:text-display"
-          >
-            {c.big}
-          </h2>
-          <p
-            className="mt-4 max-w-[560px] text-lede leading-normal lg:text-title"
-            style={{
-              color: c.accent
-                ? "oklch(96.5% 0.003 90 / 0.85)"
-                : "var(--color-ink-dim)",
-            }}
-          >
-            {c.small}
+        {/* Claims */}
+        <section className="grid gap-4 pb-4">
+          {claims.map((c) => (
+            <div
+              key={c.big}
+              className={`rounded-[22px] border px-7 py-8 backdrop-blur-[18px] lg:px-10 lg:py-10 ${
+                c.accent
+                  ? "border-[#E10600]/35 bg-[#E10600]/[0.08]"
+                  : "border-white/[0.08] bg-white/[0.03]"
+              }`}
+            >
+              <h2 className="max-w-[900px] text-subhead leading-tight font-semibold tracking-[-0.01em] lg:text-display-sm">
+                {c.big}
+              </h2>
+              <p className="mt-3 max-w-[560px] text-lede leading-normal text-[#F5F3F1]/55 lg:text-title">
+                {c.small}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        {/* The numbers — all real */}
+        <section className="grid grid-cols-2 gap-4 pb-4 lg:grid-cols-4">
+          {[
+            ["22", "rounds this season"],
+            [String(circuitCount), "circuits drawn from telemetry"],
+            [String(seasonCount), "seasons in the archive"],
+            ["0", "API keys required"],
+          ].map(([n, label]) => (
+            <div
+              key={label}
+              className="rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]"
+            >
+              <div className="text-display-sm leading-none font-bold tracking-[-0.01em]">
+                {n}
+              </div>
+              <div className="mt-2 text-label font-bold tracking-[0.2em] text-[#F5F3F1]/45 uppercase">
+                {label}
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {/* Live strip — real, or absent */}
+        {liveLine && (
+          <div className="mb-4 overflow-x-auto rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-4 text-body font-bold tracking-[0.16em] whitespace-nowrap text-[#FF564E] backdrop-blur-[18px]">
+            LIVE STANDINGS · {liveLine}
+          </div>
+        )}
+
+        {/* The door */}
+        <section className="pt-12 pb-24 lg:pt-16 lg:pb-32">
+          <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+            <Link
+              href="/overview"
+              className="group flex items-center justify-between gap-4 rounded-[22px] bg-[#E10600] px-8 py-9 transition-[filter] duration-200 hover:brightness-110 lg:px-10"
+              style={{ color: "var(--color-ink)" }}
+            >
+              <span className="text-subhead leading-none font-semibold tracking-[-0.01em] whitespace-nowrap lg:text-display-sm">
+                Enter the dashboard
+              </span>
+              <span className="text-subhead leading-none font-semibold transition-transform duration-200 group-hover:translate-x-2 lg:text-display-sm">
+                →
+              </span>
+            </Link>
+            <a
+              href={GITHUB}
+              className="gh-block flex items-center justify-center gap-3 rounded-[22px] px-8 py-9 text-head font-semibold transition-colors duration-200 lg:text-subhead"
+            >
+              <GitHubMark size={26} />
+              Source
+            </a>
+          </div>
+          <p className="mt-5 text-body text-[#F5F3F1]/45">
+            github.com/nitrimandylis/apex · MIT
           </p>
         </section>
-      ))}
-
-      {/* The numbers — all real */}
-      <section
-        className="grid grid-cols-2 gap-px lg:grid-cols-4"
-        style={{ background: "var(--color-rule)" }}
-      >
-        {[
-          ["22", "rounds this season"],
-          [String(circuitCount), "circuits drawn from telemetry"],
-          [String(seasonCount), "seasons in the archive"],
-          ["0", "API keys required"],
-        ].map(([n, label]) => (
-          <div
-            key={label}
-            className="px-6 py-10 lg:px-12"
-            style={{ background: "var(--color-paper)" }}
-          >
-            <div
-              className="text-display leading-none font-extrabold lg:text-hero"
-            >
-              {n}
-            </div>
-            <div
-              className="mt-2 text-label font-bold tracking-[0.2em] uppercase"
-              style={{ color: "var(--color-ink-faint)" }}
-            >
-              {label}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* Live strip — real, or absent */}
-      {liveLine && (
-        <div
-          className="overflow-x-auto px-6 py-4 text-body font-bold tracking-[0.16em] whitespace-nowrap lg:px-12"
-          style={{
-            borderTop: "3px solid var(--color-accent)",
-            borderBottom: "3px solid var(--color-accent)",
-            color: "var(--color-accent-bright)",
-          }}
-        >
-          LIVE STANDINGS · {liveLine}
-        </div>
-      )}
-
-      {/* The door */}
-      <section className="px-6 py-24 lg:px-12 lg:py-32">
-        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-          <Link
-            href="/overview"
-            className="group flex items-center justify-between gap-4 px-6 py-9 transition-[filter] duration-200 hover:brightness-110 lg:px-10"
-            style={{
-              background: "var(--color-accent)",
-              color: "var(--color-ink)",
-            }}
-          >
-            <span className="text-[6vw] leading-none font-extrabold tracking-[-0.01em] uppercase whitespace-nowrap lg:text-display">
-              Enter the dashboard
-            </span>
-            <span className="text-[6vw] leading-none font-extrabold transition-transform duration-200 group-hover:translate-x-2 lg:text-display">
-              →
-            </span>
-          </Link>
-          <a
-            href={GITHUB}
-            className="gh-block flex items-center justify-center gap-3 px-6 py-9 text-head font-extrabold uppercase transition-colors duration-200 lg:text-subhead"
-          >
-            <GitHubMark size={26} />
-            Source
-          </a>
-        </div>
-        <p
-          className="mt-5 text-body"
-          style={{ color: "var(--color-ink-faint)" }}
-        >
-          github.com/nitrimandylis/apex · MIT
-        </p>
-      </section>
+      </div>
 
       {/* Statement footer */}
-      <footer className="px-6 pt-16 pb-10 lg:px-12">
-        <p
-          className="max-w-[820px] text-subhead leading-tight font-extrabold lg:text-display-sm"
-        >
-          Unofficial. Unaffiliated. Just the data.
-        </p>
-        <p
-          className="mt-5 max-w-[640px] text-body leading-relaxed"
-          style={{ color: "var(--color-ink-faint)" }}
-        >
-          APEX is a fan project and is not associated with Formula 1, the FIA,
-          or any team. Championship data via Jolpica, telemetry via OpenF1.
-          Driver imagery and team radio are linked from public sources, never
-          bundled.
-        </p>
-        <div
-          className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-caption font-bold tracking-[0.2em]"
-          style={{ color: "var(--color-ink-dim)" }}
-        >
-          <a
-            href={GITHUB}
-            className="flex items-center gap-1.5 hover:text-[--color-accent-bright]"
-          >
-            <GitHubMark size={14} />
-            GITHUB
-          </a>
-          <Link href="/overview" className="hover:text-[--color-accent-bright]">
-            DASHBOARD
-          </Link>
-          <span style={{ color: "var(--color-ink-faint)" }}>MIT LICENSE</span>
+      <footer className="border-t border-white/[0.06]">
+        <div className="mx-auto max-w-[1280px] px-5 pt-14 pb-10 lg:px-12">
+          <p className="max-w-[820px] text-subhead leading-tight font-semibold tracking-[-0.01em] lg:text-display-sm">
+            Unofficial. Unaffiliated. Just the data.
+          </p>
+          <p className="mt-5 max-w-[640px] text-body leading-relaxed text-[#F5F3F1]/45">
+            APEX is a fan project and is not associated with Formula 1, the FIA,
+            or any team. Championship data via Jolpica, telemetry via OpenF1.
+            Driver imagery and team radio are linked from public sources, never
+            bundled.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-caption font-medium tracking-[0.04em] text-[#F5F3F1]/58">
+            <a href={GITHUB} className="flex items-center gap-1.5 hover:text-[#F5F3F1]">
+              <GitHubMark size={14} />
+              GitHub
+            </a>
+            <Link href="/overview" className="hover:text-[#F5F3F1]">
+              Dashboard
+            </Link>
+            <span className="text-[#F5F3F1]/35">MIT License</span>
+          </div>
         </div>
       </footer>
     </div>

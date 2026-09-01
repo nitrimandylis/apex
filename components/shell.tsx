@@ -6,9 +6,6 @@ import TopNav from "@/components/top-nav";
 
 type NextRaceCard = { round: number; name: string; detail: string };
 
-const BACKGROUND =
-  "radial-gradient(1100px 520px at 82% -8%, rgba(225,6,0,0.09), transparent 60%), radial-gradient(900px 500px at -10% 110%, rgba(255,255,255,0.03), transparent 55%), #060608";
-
 // The app frame. Users choose between a vertical sidebar and horizontal
 // top tabs; the choice persists like the favorite driver does.
 export default function Shell({
@@ -39,7 +36,7 @@ export default function Shell({
     return (
       <div
         className="flex min-h-screen flex-col"
-        style={{ background: BACKGROUND }}
+        style={{ background: "var(--paper-field)" }}
       >
         <TopNav nextRace={nextRace} drivers={drivers} onSwitch={switchMode} />
         <div className="flex-1">
@@ -54,7 +51,7 @@ export default function Shell({
   return (
     <div
       className="flex min-h-screen flex-col lg:flex-row"
-      style={{ background: BACKGROUND }}
+      style={{ background: "var(--paper-field)" }}
     >
       <Sidebar nextRace={nextRace} drivers={drivers} onSwitch={switchMode} />
       <div className="flex-1 lg:h-screen lg:overflow-y-auto">
