@@ -9,7 +9,7 @@ Formula 1 dashboard for the 2026 season. All data is live from public APIs — n
 - `bun run lint` — ESLint
 - `bun test` — runs the `lib/*.test.ts` checks
 
-Bun for everything (install, run, test). No env vars, no API keys.
+Bun for everything (install, run, test). The data needs no env vars or API keys; push alerts do (Upstash Redis + QStash, VAPID keys, `CRON_SECRET`, listed in the README).
 
 ## Next.js 16 warning
 
@@ -23,7 +23,8 @@ Two data sources, one rule: **Jolpica = championship layer, OpenF1 = car layer.*
 - `lib/openf1.ts` — telemetry replay fetchers (client) + track outline (server, cached 1 week). OpenF1 has no points/standings and no data before 2023.
 - `lib/replay.ts` — pure replay math (binary search, running order, lap/tyre lookups). Tested. Keep it free of fetching and React.
 - `components/replay.tsx` — the replay state machine (idle → loading → playing; 250 ms clock tick).
-- `app/*/page.tsx` — one route per view (Overview `/`, Calendar, Standings, Telemetry, History). Server components except telemetry.
+- `app/(dashboard)/*/page.tsx` — one route per view (`/overview`, `/calendar`, `/standings`, `/telemetry`, `/history`). Server components except telemetry. `app/page.tsx` is the landing at `/`.
+- Push alerts: `lib/push-plan.ts` (pure schedule, tested), `lib/push.ts` (Redis, web-push, QStash over REST), `app/api/push/{subscribe,schedule,send}`, `public/sw.js` (writes the text on the phone). Decisions in `PRODUCT.md`.
 - `lib/colors.ts` — team colors keyed by Jolpica constructorId; `colorForTeamName()` bridges OpenF1 team names.
 
 ## API gotchas (learned the hard way)

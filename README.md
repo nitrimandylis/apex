@@ -37,10 +37,10 @@ nick@apex:~$ bun run dev
 | | screen | what it actually shows |
 |---|---|---|
 | 01 | **overview** | next-race hero with live countdown, real circuit outline, weekend schedule in your timezone, last podium + pole, top 5 with faces |
-| 02 | **calendar** | all 22 rounds with flags, sprint badges, mini track shapes, winner faces — completed rounds dim themselves out of respect |
+| 02 | **calendar** | every round of the season with flags, sprint badges, mini track shapes, winner faces — completed rounds dim themselves out of respect |
 | 03 | **standings** | title-fight chart of points by round, drivers and constructors with headshots and points bars, your favorite highlighted (stored locally, judged locally) |
 | 04 | **telemetry** | any past session replayed at 1×/5×/20× — speed, gear, throttle, brake, running order, a live car dot on the track map, weather, race-control messages, and the actual team radio |
-| 05 | **history** | wins so far this season + the last ten world champions |
+| 05 | **history** | wins so far this season, all-time wins and titles, and every world champion since 1950 |
 
 ## 🚀 Run it
 
@@ -54,6 +54,19 @@ bun run dev
 ```
 
 No env vars, no keys, no accounts — both APIs are public and the rate limits are handled with caching and polite retries.
+
+The one exception is push alerts. Without these, everything else still runs and the alerts endpoints just fail:
+
+| var | where it comes from |
+|---|---|
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis, via the Vercel Marketplace |
+| `QSTASH_TOKEN`, `QSTASH_CURRENT_SIGNING_KEY`, `QSTASH_NEXT_SIGNING_KEY` | Upstash QStash, via the Vercel Marketplace |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | `bunx web-push generate-vapid-keys` |
+| `CRON_SECRET` | any random string; guards the daily scheduler |
+
+## 📲 On your phone
+
+Open it in Safari, Share → Add to Home Screen, and APEX installs as an app: its own icon, its own window, no browser bars. From the installed app, tap **Alerts** next to the favorite picker and it will ping you the day before a weekend starts, 15 minutes before quali, sprint and race, and with the top 3 once the result is in, plus where your favorite finished. Times show up in whatever timezone your phone is in, so it keeps working when you're abroad.
 
 ## 🔩 Under the hood
 
@@ -71,10 +84,13 @@ flowchart LR
 | openf1 client | `lib/openf1.ts` | sessions, drivers, car data, positions, stints, laps, gaps + the track outline |
 | replay math | `lib/replay.ts` | pure helpers: binary search over 20k samples, running order, lap/tyre/weather lookups — the tested part |
 | replay ui | `components/replay.tsx` | the state machine: pick session → load → advance a simulated clock every 250ms |
-| views | `app/*/page.tsx` | one route per screen, server-rendered off the cached data |
+| views | `app/(dashboard)/*/page.tsx` | one route per screen, server-rendered off the cached data |
 | track shapes | `scripts/build-outlines.ts` | one real lap per circuit, downsampled and committed as json — rerun after a new circuit debuts |
+| alert schedule | `lib/push-plan.ts` | pure: which previews, reminders and result checks fall due in the next window — tested |
+| alert plumbing | `lib/push.ts`, `app/api/push/*` | subscriptions in Upstash Redis, a daily Vercel cron queues each alert on QStash for its exact minute, `web-push` sends it |
+| service worker | `public/sw.js` | turns the raw push into words in the phone's own timezone |
 
-**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · bun — that's the whole list.
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · bun, plus Upstash (Redis + QStash) and `web-push` for the alerts.
 
 ---
 
