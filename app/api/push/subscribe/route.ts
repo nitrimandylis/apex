@@ -32,6 +32,13 @@ function isPushEndpoint(endpoint: unknown): endpoint is string {
   }
 }
 
+// Browser keys have fixed sizes: p256dh is a 65-byte public key (87
+// base64url characters), auth is 16 bytes (22 characters). Anything else
+// could never be encrypted to, and would sit in the list failing forever.
+function isKey(v: unknown, length: number): v is string {
+  return typeof v === "string" && v.length === length && /^[A-Za-z0-9_-]+$/.test(v);
+}
+
 function isShortString(v: unknown, max: number): v is string {
   return typeof v === "string" && v.length <= max;
 }
@@ -41,8 +48,8 @@ export async function POST(request: Request) {
   const sub = body?.subscription;
   if (
     !isPushEndpoint(sub?.endpoint) ||
-    !isShortString(sub?.keys?.p256dh, 200) ||
-    !isShortString(sub?.keys?.auth, 100) ||
+    !isKey(sub?.keys?.p256dh, 87) ||
+    !isKey(sub?.keys?.auth, 22) ||
     !isShortString(body?.favorite ?? "", 40)
   ) {
     return Response.json({ error: "bad subscription" }, { status: 400 });
