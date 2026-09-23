@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { syncFavorite } from "@/lib/alerts";
 
 const FavoriteContext = createContext<{
   favorite: string;
@@ -20,6 +21,8 @@ export function FavoriteProvider({ children }: { children: React.ReactNode }) {
   function setFavorite(name: string) {
     setFavoriteState(name);
     localStorage.setItem("apex-favorite", name);
+    // Result alerts name your driver, so the server needs the new one.
+    syncFavorite(name).catch((err) => console.error(err));
   }
 
   return (

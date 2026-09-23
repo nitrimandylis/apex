@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/logo";
 import { useFavorite } from "@/lib/favorite";
+import AlertsToggle from "@/components/alerts-toggle";
 
 const NAV_ITEMS = [
   { href: "/overview", label: "Overview" },
@@ -56,6 +57,7 @@ export default function TopNav({
               </option>
             ))}
           </select>
+          <AlertsToggle className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/[0.07] bg-white/[0.025] px-2 py-1 text-xs whitespace-nowrap text-[#F5F3F1]/70 hover:text-[#F5F3F1] disabled:opacity-50" />
           <button
             onClick={onSwitch}
             title="Switch to sidebar"

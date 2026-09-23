@@ -429,8 +429,11 @@ export type SessionResultRow = {
 
 // Classification for sessions Jolpica doesn't cover (practice, sprint
 // quali), joined with driver names. Server, cached weekly once past.
+// Push alerts poll a session that just ended and pass revalidate 0:
+// an empty answer cached for a week would hide the result.
 export async function getSessionResult(
   key: number,
+  revalidate = 604800,
 ): Promise<SessionResultRow[]> {
   type RawSR = {
     position: number | null;
@@ -464,8 +467,8 @@ export async function getSessionResult(
   }
   try {
     const [srRes, dRes] = await Promise.all([
-      fetchCachedRetry(`/session_result?session_key=${key}`, 604800),
-      fetchCachedRetry(`/drivers?session_key=${key}`, 604800),
+      fetchCachedRetry(`/session_result?session_key=${key}`, revalidate),
+      fetchCachedRetry(`/drivers?session_key=${key}`, revalidate),
     ]);
     if (!srRes.ok || !dRes.ok) {
       return [];

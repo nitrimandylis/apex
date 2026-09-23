@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFavorite } from "@/lib/favorite";
+import AlertsToggle from "@/components/alerts-toggle";
 import Logo from "@/components/logo";
 
 const NAV_ITEMS = [
@@ -58,6 +59,7 @@ export default function Sidebar({
               </option>
             ))}
           </select>
+          <AlertsToggle className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/[0.07] bg-white/[0.025] px-2 py-1 text-xs whitespace-nowrap text-[#F5F3F1]/70 hover:text-[#F5F3F1] disabled:opacity-50" />
         </div>
         <div className="flex gap-1 overflow-x-auto">
           {NAV_ITEMS.map((item) => (
@@ -143,6 +145,7 @@ export default function Sidebar({
               </option>
             ))}
           </select>
+          <AlertsToggle className="mt-1.5 flex w-full cursor-pointer items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-body text-[#F5F3F1]/70 hover:text-[#F5F3F1] disabled:opacity-50" />
         </div>
       )}
 
