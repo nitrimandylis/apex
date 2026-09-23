@@ -30,6 +30,7 @@ Official-asset policy: no bundled F1/team artwork; driver headshots and team-rad
 - **Stack:** Next.js, TypeScript, Tailwind, App Router. Each view is a route (`/`, `/calendar`, `/standings`, `/telemetry`, `/history`).
 - **Scope v1:** all five views — Overview, Calendar, Standings, Telemetry, History.
 - **Responsive:** desktop-first as designed; pragmatic mobile pass (sidebar collapses, grids stack) so it works on a phone on race day.
+- **Installable (2026-09-23):** a PWA, not a native app. Web-app manifest + Safari `appleWebApp` tags so "Add to Home Screen" on iPhone gives an APEX icon that opens `/overview` full-window. No service worker: the data is live, offline has nothing useful to show.
 - **Personalization:** favorite-driver picker in sidebar, persisted in localStorage, highlights rows in standings/running order. `startView` prop dropped — routes replace it.
 - **Circuit map:** drawn as SVG from real OpenF1 car-position data (one lap of location samples) — no licensed images, works for every circuit.
 - **Name:** app is **APEX**, repo stays `f1-dash`.
