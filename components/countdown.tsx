@@ -69,7 +69,10 @@ export default function Countdown({ targetIso }: { targetIso: string }) {
   }, [targetIso, router]);
 
   return (
-    <div className="mt-[26px] flex gap-2.5 lg:gap-3.5">
+    // transform-gpu: its own compositing layer. Inside the blurred hero card,
+    // iOS Safari skipped repainting boxes that change once (days, hrs, min)
+    // and kept showing "--" until a scroll forced a repaint.
+    <div className="mt-[26px] flex transform-gpu gap-2.5 lg:gap-3.5">
       <Box value={parts.days} label="DAYS" />
       <Box value={parts.hours} label="HRS" />
       <Box value={parts.mins} label="MIN" />
