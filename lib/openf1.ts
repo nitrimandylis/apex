@@ -71,6 +71,23 @@ function directHeadshot(url: string | null): string {
   return (url ?? "").replace("d_driver_fallback_image.png/", "");
 }
 
+// OpenF1's links point at F1's old image store, which never got photos for
+// 2026 rookies (Lindblad 404s). The new store has every 2026 driver in this
+// season's kit, keyed by team slug + driver code ("racingbulls", "arvlin01").
+// Only for 2026 sessions: it has no 2023 photos, so replay keeps
+// directHeadshot. The face crop matches the old head-and-shoulders framing.
+function seasonHeadshot(url: string | null, teamName: string): string {
+  const code = (url ?? "").match(/\/([a-z]{6}\d{2})\.png/);
+  if (!code) {
+    return directHeadshot(url);
+  }
+  const team = teamName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return (
+    "https://media.formula1.com/image/upload/c_thumb,g_face,z_0.6,w_160,h_160" +
+    `/common/f1/2026/${team}/${code[1]}/2026${team}${code[1]}right.webp`
+  );
+}
+
 // ---- Client-side fetchers for the telemetry replay ----
 // These run in the browser, so plain fetch with no Next cache options.
 
@@ -366,7 +383,7 @@ export async function getHeadshots(): Promise<Record<string, string>> {
     const map: Record<string, string> = {};
     for (const d of drivers) {
       if (d.headshot_url) {
-        map[nameKey(d.last_name)] = directHeadshot(d.headshot_url);
+        map[nameKey(d.last_name)] = seasonHeadshot(d.headshot_url, d.team_name);
       }
     }
     return map;
@@ -487,7 +504,7 @@ export async function getSessionResult(
           acronym: d?.name_acronym ?? `#${r.driver_number}`,
           lastName: d?.last_name ?? `#${r.driver_number}`,
           teamName: d?.team_name ?? "",
-          headshot: directHeadshot(d?.headshot_url ?? null),
+          headshot: seasonHeadshot(d?.headshot_url ?? null, d?.team_name ?? ""),
           laps: r.number_of_laps ?? 0,
           bestTime: best(r.duration),
           gap: lastNum(r.gap_to_leader),
