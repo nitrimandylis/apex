@@ -71,7 +71,7 @@ export default async function OverviewPage() {
 
   return (
     <div>
-      <PageHeader title="Overview" sub={`${round} of 22 rounds complete`} />
+      <PageHeader title="Overview" sub={`${round} of ${races.length} rounds complete`} />
       <div className="flex flex-col gap-5">
         {/* Hero: next race */}
         {next && (

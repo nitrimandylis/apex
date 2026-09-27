@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import Logo from "@/components/logo";
 import GitHubMark from "@/components/github-mark";
 import { getCalendar, getDriverStandings } from "@/lib/jolpica";
@@ -11,14 +12,17 @@ const GITHUB = "https://github.com/nitrimandylis/apex";
 
 // The landing poster. Manifesto voice: assertions, then the door.
 export default async function LandingPage() {
+  await connection(); // the live line names the next race, see the dashboard layout
   // Honest live line — hidden entirely if the APIs are unreachable.
   let liveLine: string | null = null;
+  let roundCount = "—";
   try {
     const [{ round, standings }, races] = await Promise.all([
       getDriverStandings(),
       getCalendar(),
     ]);
     const leader = standings[0];
+    roundCount = String(races.length);
     const next = nextRace(races, new Date());
     liveLine =
       `P1 ${leader.familyName.toUpperCase()} · ${leader.points} PTS` +
@@ -157,7 +161,7 @@ export default async function LandingPage() {
         {/* The numbers — all real */}
         <section className="grid grid-cols-2 gap-4 pb-4 lg:grid-cols-4">
           {[
-            ["22", "rounds this season"],
+            [roundCount, "rounds this season"],
             [String(circuitCount), "circuits drawn from telemetry"],
             [String(seasonCount), "seasons in the archive"],
             ["0", "API keys required"],

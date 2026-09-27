@@ -4,6 +4,7 @@ import PointsChart from "@/components/points-chart";
 import { buildProgression } from "@/lib/progression";
 import { getHeadshots } from "@/lib/openf1";
 import {
+  getCalendar,
   getConstructorStandings,
   getDriverStandings,
   getSeasonPoints,
@@ -14,9 +15,10 @@ import { TEAM_COLORS } from "@/lib/colors";
 export const metadata = { title: "Standings · APEX" };
 
 export default async function StandingsPage() {
-  const [{ round, standings }, constructors] = await Promise.all([
+  const [{ round, standings }, constructors, races] = await Promise.all([
     getDriverStandings(),
     getConstructorStandings(),
+    getCalendar(),
   ]);
   const seasonPoints = await getSeasonPoints().catch(() => []);
   const headshots = await getHeadshots();
@@ -29,7 +31,7 @@ export default async function StandingsPage() {
     <div>
       <PageHeader
         title="Championship standings"
-        sub={`${round} of 22 rounds complete`}
+        sub={`${round} of ${races.length} rounds complete`}
       />
       {progression && (
         <div className="mb-5 rounded-[20px] border border-white/[0.08] bg-white/[0.025] px-7 py-[26px] backdrop-blur-[18px]">
