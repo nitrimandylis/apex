@@ -24,6 +24,8 @@ function Box({
       <div
         className="text-subhead leading-none font-bold lg:text-display-sm"
         style={accent ? { color: "#FF564E" } : undefined}
+        // Server and browser clocks differ by a second or so; the tick fixes it.
+        suppressHydrationWarning
       >
         {value}
       </div>
@@ -41,13 +43,13 @@ function Box({
 
 export default function Countdown({ targetIso }: { targetIso: string }) {
   const router = useRouter();
-  // "--" until mounted so the server and browser never render different times.
-  const [parts, setParts] = useState({
-    days: "--",
-    hours: "--",
-    mins: "--",
-    secs: "--",
-  });
+  // Start from real numbers, not "--". The server renders this per request,
+  // so its values are only a moment old. iOS Safari skipped repainting the
+  // first "--" -> numbers swap on hydration, leaving days/hrs/min as "--"
+  // until a scroll or the next minute forced a repaint.
+  const [parts, setParts] = useState(() =>
+    countdownParts(targetIso, new Date()),
+  );
 
   useEffect(() => {
     let refreshed = false;
@@ -69,10 +71,7 @@ export default function Countdown({ targetIso }: { targetIso: string }) {
   }, [targetIso, router]);
 
   return (
-    // transform-gpu: its own compositing layer. Inside the blurred hero card,
-    // iOS Safari skipped repainting boxes that change once (days, hrs, min)
-    // and kept showing "--" until a scroll forced a repaint.
-    <div className="mt-[26px] flex transform-gpu gap-2.5 lg:gap-3.5">
+    <div className="mt-[26px] flex gap-2.5 lg:gap-3.5">
       <Box value={parts.days} label="DAYS" />
       <Box value={parts.hours} label="HRS" />
       <Box value={parts.mins} label="MIN" />
