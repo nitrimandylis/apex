@@ -14,7 +14,7 @@
 
 ![next.js](https://img.shields.io/badge/next.js-16-E10600?style=flat-square&labelColor=111111) ![runtime](https://img.shields.io/badge/runtime-bun-F5F3F1?style=flat-square&labelColor=111111) ![data](https://img.shields.io/badge/data-jolpica_+_openf1-E10600?style=flat-square&labelColor=111111) ![api keys](https://img.shields.io/badge/api_keys-0-F5F3F1?style=flat-square&labelColor=111111) ![telemetry](https://img.shields.io/badge/fake_telemetry-0_(we_checked)-E10600?style=flat-square&labelColor=111111)
 
-[![apex landing: every race, every number, every year, beside a circuit outline. nothing on it is made up](.github/assets/screenshot.jpg)](https://apex-formula1.vercel.app)
+[![apex landing: every race, every number, every year, beside a circuit outline. nothing on it is made up](.github/assets/screenshot.jpg)](https://apex.nicktrim.com)
 
 </div>
 

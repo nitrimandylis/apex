@@ -11,7 +11,7 @@ export type StoredSub = {
 };
 
 const SUBS_KEY = "apex:subs"; // hash: endpoint -> StoredSub JSON
-const SITE = "https://apex-formula1.vercel.app";
+const SITE = "https://apex.nicktrim.com";
 
 // ---- Redis (Upstash REST: POST the command as a JSON array) ----
 
