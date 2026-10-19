@@ -587,7 +587,7 @@ export default async function RaceDetailPage({
 
       <div className="mb-6 text-[14px] text-[#F5F3F1]/55">
         Round {race.round} of {races.length} · {race.circuit} ·{" "}
-        {raceOver ? `Raced ${dateLine}` : `${dateLine} · ${timeLine} local`}
+        {raceOver ? `Raced ${dateLine}` : `${dateLine} · ${timeLine} circuit time`}
       </div>
 
       <div className="flex flex-col gap-5">

@@ -97,7 +97,7 @@ export default async function OverviewPage() {
                 {next.name}
               </div>
               <div className="text-[15px] text-[#F5F3F1]/60">
-                {next.circuit} · {raceDay} · {raceTime} local
+                {next.circuit} · {raceDay} · {raceTime} circuit time
               </div>
               <Countdown targetIso={next.raceStart} />
             </div>
